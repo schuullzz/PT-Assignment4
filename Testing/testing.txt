@@ -1,0 +1,12 @@
+data x := 2;
+data y := 5;
+
+main
+begin
+
+data p := 5;
+getter p;
+
+proc x;
+
+end
