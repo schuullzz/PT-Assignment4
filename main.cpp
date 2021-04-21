@@ -10,7 +10,7 @@
 #include <vector>
 #include "scanner.h"
 #include "parser.h"
-#include "stack.h"
+#include "generator.h"
 #include "node.h"
 
 //prototypes

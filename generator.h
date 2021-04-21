@@ -2,8 +2,8 @@
 //CS 4280
 //Project 4
 
-#ifndef STACK_H
-#define STACK_H
+#ifndef GENERATOR_H
+#define GENERATOR_H
 
 #include <string>
 #include "node.h"

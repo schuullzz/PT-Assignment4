@@ -5,8 +5,8 @@
 CC = g++ 
 CFLAGS = -g -Wall 
 TARGET = compfs
-OBJ = main.o scanner.o parser.o stack.o
-SRC = main.cpp scanner.cpp parser.cpp stack.cpp
+OBJ = main.o scanner.o parser.o generator.o
+SRC = main.cpp scanner.cpp parser.cpp generator.cpp
 
 all: $(TARGET) 
 
@@ -22,8 +22,8 @@ scanner.o: scanner.cpp scanner.h token.h parser.h
 parser.o: parser.cpp scanner.h parser.h node.h
 	$(CC) $(CFLAGS) -c parser.cpp
 
-stack.o: stack.cpp stack.h
-	$(CC) $(CFLAGS) -c stack.cpp
+stack.o: generator.cpp stack.h
+	$(CC) $(CFLAGS) -c generator.cpp
 
 .PHONY: clean
 clean:

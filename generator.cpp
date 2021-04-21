@@ -5,7 +5,7 @@
 #include <iostream>
 #include <string>
 #include <stdlib.h>
-#include "stack.h"
+#include "generator.h"
 #include "node.h"
 
 static DynamicStack r;
