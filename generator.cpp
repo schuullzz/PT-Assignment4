@@ -1,6 +1,6 @@
 //Author: Timothy Schultz
 //CS 4280
-//Project 4
+//Project 3
 
 #include <iostream>
 #include <string>
@@ -9,6 +9,10 @@
 #include "node.h"
 
 static DynamicStack r;
+static int globalVar = 0;
+static int numberVar = 0;
+static int totalVar = 0;
+static int globalFlag = 0;
 static int failFlag = 0;
 
 //Moves through the tree and operates the stack.
@@ -24,46 +28,35 @@ void stackDriver(node *holder)
 	//If statements that operate the function to be called in the stack.
 	if(holder->label.compare("main") == 0)
 	{
+		globalFlag = 1;
 		//When main detected push onto stack
-		r.push(holder->label, "main", holder->id_1, holder->lineNumber);
+		//r.push(holder->label, "main", holder->id_1, holder->lineNumber);
 	}
 	else if(holder->label.compare("begin") == 0)
 	{
 		//When begin detected push onto stack.
-		r.push(holder->label, "begin", holder->id_1, holder->lineNumber);
-	}
-	else if(holder->label.compare("end") == 0)
-	{
-		//When end detected puch onto stack.
-		r.push(holder->label, "end", holder->id_1, holder->lineNumber);
-		//Pops of end from the stack.
-		r.pop();		
-
-		//When begin is detected only do one more pop
-		//otherwise keep popping
-		while(1)
-		{
-
-			if(r.topStack().compare("begin") == 0)
-			{	
-				r.pop();
-				break;
-			}
-			else if(r.topStack().compare("begin") != 0)
-			{
-				r.pop();
-			}
-		}
-		
+		//r.push(holder->label, "begin", holder->id_1, holder->lineNumber);
 	}
 	else if(holder->label.compare("<vars>") == 0)
 	{	
+		if(globalFlag == 0)
+		{
+			globalVar++;
+			totalVar++;
+		}
+		else
+		{
+			numberVar++;
+			totalVar++;
+		}
+
 		//When vars is detected get the child information and push to stack.
 		node *temp = holder->child1;
 		if(temp->label.compare("empty") != 0)
 		{
 			r.push(temp->label, temp->value_1, temp->id_1, temp->lineNumber);
 		}
+
 	}
 	else if(holder->label.compare("<R>") == 0)
 	{
@@ -235,9 +228,11 @@ bool DynamicStack::isEmpty()
 //Search function: Searches stack to make sure identifier was not already on stack
 bool DynamicStack::search(StackNode *n)
 {
+	int variables = numberVar;
+	int globals = globalVar;
+	int totalVariables = totalVar;
 	StackNode *holder;
 	holder = top;
-
 
 	if(holder == NULL)
 	{
@@ -246,17 +241,29 @@ bool DynamicStack::search(StackNode *n)
 
 	while(holder != NULL)
 	{
-		if(holder->label.compare("begin") == 0)
+		if(globalFlag == 1)
 		{
-			return false;
-		}
-
-		if(holder->id == n->id && holder->symbol.compare(n->symbol) == 0)
-		{
-			if(holder->label.compare("begin") != 0)	
+			totalVariables--;
+		
+			if(totalVariables <= globals || variables == 0)
 			{
-				errorStack(holder, n, " ", 1, -1);
+				break;
 			}
+
+			if(holder->id == n->id && holder->symbol.compare(n->symbol) == 0)
+			{
+				//std::cout << "Search error 1" << std::endl;
+				errorStack(holder, n, " ", 1, holder->lineNumber);
+			}
+		}
+		else
+		{
+			if(holder->id == n->id && holder->symbol.compare(n->symbol) == 0)
+			{
+				//std::cout << "Search error 2" << std::endl;
+				errorStack(holder, n, " ", 1, holder->lineNumber);
+			}
+
 		}
 
 		holder = holder->next;
@@ -276,25 +283,9 @@ bool DynamicStack::searchDeclaration(std::string symbol)
 
 	if(holder == NULL)
 	{
-		errorStack(holder, holder, "", 2, -1);
+		//std::cout << "Search Dec error 1" << std::endl;
+		errorStack(holder, holder, symbol, 2, -1);
 	}
-
-	while(holder != NULL)
-	{
-		if(holder->label.compare("main") == 0)
-		{
-			holder = holder->next;
-			break;
-		}
-
-		if(holder->symbol.compare(symbol) == 0)
-		{
-			return true;
-		}
-
-		holder = holder->next;
-	}
-
 
 	while(holder != NULL)
 	{
@@ -306,6 +297,7 @@ bool DynamicStack::searchDeclaration(std::string symbol)
 		holder = holder->next;	
 	}
 
+	//std::cout << "Search Dec error 2" << std::endl;
 	errorStack(holder, holder, symbol, 2, lineNum);
 	return false;
 }
