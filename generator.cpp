@@ -65,27 +65,25 @@ void recGen(node *holder)
 	}
 	else if(holder->label.compare("<vars>") == 0)
 	{	
-		if(globalFlag == 0)
+		node *temp = holder->child1;
+		if(globalFlag == 0 && temp->label.compare("empty") != 0)
 		{
 			globalVar++;
 			totalVar++;
 		}
-		else
+		else if(temp->label.compare("empty") != 0)
 		{
 			numberVar++;
 			totalVar++;
 		}
 
-		//When vars is detected get the child information and push to stack.
-		node *temp = holder->child1;
-		if(temp->label.compare("empty") != 0)
+		if(temp->id_1 == 23 && temp->label.compare("empty") != 0)
 		{
 			r.push(temp->label, temp->value_1, temp->id_1, temp->lineNumber);
-			std::cout << temp->value_1 << " " << std::endl;
-		}
+			//std::cout << temp->value_1 << " " << temp->value_3 << std::endl; 
+		}		
 
 		//Recursive call to children.
-		recGen(holder->child1);
 		recGen(holder->child2);
 		recGen(holder->child3);
 		recGen(holder->child4);
@@ -93,21 +91,22 @@ void recGen(node *holder)
 	}
 	else if(holder->label.compare("<R>") == 0)
 	{
-		//When R is detected get the child information and search stack.
+		//When in is detected get the child information and search stack.
 		node *temp = holder->child1;
 		if(temp->id_1 == 23)
 		{
-			//Check to see if declared
-			r.searchDeclaration(temp->value_1);
 			std::cout << temp->value_1 << std::endl;
 		}
 		else if(temp->id_1 == 24)
 		{
 			std::cout << temp->value_1 << std::endl;
 		}
+		else
+		{
+			recGen(holder->child1);
+		}
 
 		//Recursive call to children.
-		recGen(holder->child1);
 		recGen(holder->child2);
 		recGen(holder->child3);
 		recGen(holder->child4);
@@ -124,9 +123,7 @@ void recGen(node *holder)
 			std::cout << "READ " << temp->value_1 << std::endl;
 		}
 
-		
 		//Recursive call to children.
-		recGen(holder->child1);
 		recGen(holder->child2);
 		recGen(holder->child3);
 		recGen(holder->child4);
