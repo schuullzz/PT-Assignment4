@@ -94,6 +94,13 @@ static void readFile(std::string openFile)
 {
 	//Creates file object with file name.
 	std::ifstream file(openFile.c_str());
+
+	if(file == NULL)
+	{
+		std::cout << "Unable to open file." << std::endl;
+		exit(1);
+	}
+
 	//Contains string from file.
 	std::string inputHolder = "";
 	//String from file with out comments.
