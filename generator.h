@@ -8,8 +8,14 @@
 #include <string>
 #include "node.h"
 
-//Prototype for driver.
-void stackDriver(node *);
+//enum types
+typedef enum {VAR, LABEL} nameType;
+
+//newName function
+std::string newName(nameType);
+
+//Prototype for driver for code generation.
+void recGen(node *);
 
 //Stack class
 class DynamicStack

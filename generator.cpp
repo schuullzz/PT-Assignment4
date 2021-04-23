@@ -8,6 +8,7 @@
 #include "generator.h"
 #include "node.h"
 
+//P3 Static Variables
 static DynamicStack r;
 static int globalVar = 0;
 static int numberVar = 0;
@@ -15,27 +16,52 @@ static int totalVar = 0;
 static int globalFlag = 0;
 static int failFlag = 0;
 
+//P4 Static Variables
+static int LabelCntr = 0;
+static int VarCntr = 0;
+static std::string Name = "";
+
+std::string newName(nameType what)
+{
+	Name = "";	
+
+	if(what == VAR)
+	{
+		Name += "T";
+		Name += VarCntr;
+		VarCntr++;
+	}
+	else
+	{
+		Name += "L";
+		Name += LabelCntr;
+		LabelCntr++;
+	}
+
+	return Name;
+}
+
 //Moves through the tree and operates the stack.
-void stackDriver(node *holder)
+void recGen(node *holder)
 {
 	//if tree holder points to null return
 	if(holder == NULL)
 	{
 		return;
 	}	
-
 	
 	//If statements that operate the function to be called in the stack.
 	if(holder->label.compare("main") == 0)
 	{
 		globalFlag = 1;
-		//When main detected push onto stack
-		//r.push(holder->label, "main", holder->id_1, holder->lineNumber);
-	}
-	else if(holder->label.compare("begin") == 0)
-	{
-		//When begin detected push onto stack.
-		//r.push(holder->label, "begin", holder->id_1, holder->lineNumber);
+
+		//Recursive call to children.
+		recGen(holder->child1);
+		recGen(holder->child2);
+		recGen(holder->child3);
+		recGen(holder->child4);
+		recGen(holder->child5);
+
 	}
 	else if(holder->label.compare("<vars>") == 0)
 	{	
@@ -55,8 +81,15 @@ void stackDriver(node *holder)
 		if(temp->label.compare("empty") != 0)
 		{
 			r.push(temp->label, temp->value_1, temp->id_1, temp->lineNumber);
+			std::cout << temp->value_1 << " " << std::endl;
 		}
 
+		//Recursive call to children.
+		recGen(holder->child1);
+		recGen(holder->child2);
+		recGen(holder->child3);
+		recGen(holder->child4);
+		recGen(holder->child5);
 	}
 	else if(holder->label.compare("<R>") == 0)
 	{
@@ -66,7 +99,19 @@ void stackDriver(node *holder)
 		{
 			//Check to see if declared
 			r.searchDeclaration(temp->value_1);
+			std::cout << temp->value_1 << std::endl;
 		}
+		else if(temp->id_1 == 24)
+		{
+			std::cout << temp->value_1 << std::endl;
+		}
+
+		//Recursive call to children.
+		recGen(holder->child1);
+		recGen(holder->child2);
+		recGen(holder->child3);
+		recGen(holder->child4);
+		recGen(holder->child5);
 	}
 	else if(holder->label.compare("<in>") == 0)
 	{
@@ -76,7 +121,17 @@ void stackDriver(node *holder)
 		{
 			//Check to see if declared
 			r.searchDeclaration(temp->value_1);
+			std::cout << "READ " << temp->value_1 << std::endl;
 		}
+
+		
+		//Recursive call to children.
+		recGen(holder->child1);
+		recGen(holder->child2);
+		recGen(holder->child3);
+		recGen(holder->child4);
+		recGen(holder->child5);
+
 	}
 	else if(holder->label.compare("<assign>") == 0)
 	{
@@ -86,7 +141,15 @@ void stackDriver(node *holder)
 		{
 			//Check to see if declared
 			r.searchDeclaration(temp->value_1);
+			std::cout << temp->value_1 << " "; 
 		}
+
+		//Recursive call to children.
+		recGen(holder->child1);
+		recGen(holder->child2);
+		recGen(holder->child3);
+		recGen(holder->child4);
+		recGen(holder->child5);
 	}
 	else if(holder->label.compare("<label>") == 0)
 	{
@@ -97,6 +160,13 @@ void stackDriver(node *holder)
 			//Check to see if declared
 			r.searchDeclaration(temp->value_1);
 		}
+
+		//Recursive call to children.
+		recGen(holder->child1);
+		recGen(holder->child2);
+		recGen(holder->child3);
+		recGen(holder->child4);
+		recGen(holder->child5);
 	}	
 	else if(holder->label.compare("<goto>") == 0)
 	{
@@ -107,14 +177,23 @@ void stackDriver(node *holder)
 			//Check to see if declared
 			r.searchDeclaration(temp->value_1);
 		}
-	}
 
-	//Recursive call to children.
-	stackDriver(holder->child1);
-	stackDriver(holder->child2);
-	stackDriver(holder->child3);
-	stackDriver(holder->child4);
-	stackDriver(holder->child5);
+		//Recursive call to children.
+		recGen(holder->child1);
+		recGen(holder->child2);
+		recGen(holder->child3);
+		recGen(holder->child4);
+		recGen(holder->child5);
+	}
+	else
+	{
+		//Recursive call to children.
+		recGen(holder->child1);
+		recGen(holder->child2);
+		recGen(holder->child3);
+		recGen(holder->child4);
+		recGen(holder->child5);
+	}
 	
 }
 
@@ -123,7 +202,7 @@ void stackDriver(node *holder)
 //Destructor: Removes remaining nodes
 DynamicStack::~DynamicStack()
 {
-	std::cout << "Destructor called" << std::endl;
+	//std::cout << "Destructor called" << std::endl;
 
 	//Nodes to hold values while clearing.
 	StackNode *currentPtr = NULL;
@@ -135,10 +214,13 @@ DynamicStack::~DynamicStack()
 	//Remove nodes from stack
 	while(currentPtr != NULL)
 	{
+		/*
 		if(failFlag == 0)
 		{
 			std::cout << "Popping off stack: " << currentPtr->label << std::endl;
 		}
+		*/		
+
 		nextNode = currentPtr->next;
 		delete currentPtr;
 		currentPtr = nextNode;
@@ -167,13 +249,13 @@ void DynamicStack::push(std::string label, std::string symbol, int id, int lineN
 	{
 		if(isEmpty())
 		{
-			std::cout << "Pushed to empty stack: " << nodeCreated->label << std::endl;
+			//std::cout << "Pushed to empty stack: " << nodeCreated->label << std::endl;
 			top = nodeCreated;
 			nodeCreated->next = NULL;
 		}
 		else
 		{
-			std::cout << "Pushed to stack: " << nodeCreated->label << std::endl;
+			//std::cout << "Pushed to stack: " << nodeCreated->label << std::endl;
 			nodeCreated->next = top;
 			top = nodeCreated;
 		}
@@ -191,12 +273,12 @@ void DynamicStack::pop()
 	//If stack is empty return
 	if(isEmpty())
 	{
-		std::cout <<"Stack was empty." << std::endl;
+		//std::cout <<"Stack was empty." << std::endl;
 		return;
 	}
 	else
 	{
-		std::cout << "Poping off stack: " << top->label << std::endl;
+		//std::cout << "Poping off stack: " << top->label << std::endl;
 		holder = top->next;
 		delete top;
 		top = holder;

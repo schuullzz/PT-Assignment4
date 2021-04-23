@@ -186,7 +186,7 @@ static void readFile(std::string openFile)
 
 	
 	node *tree = parser();
-	stackDriver(tree);	
+	recGen(tree);	
 }
 
 //Function is called to read from keyboard.
@@ -281,6 +281,6 @@ static void readInput()
 	*/
 
 	node *tree = parser();
-	stackDriver(tree);	
+	recGen(tree);	
 }
 
