@@ -5,6 +5,7 @@
 #include <iostream>
 #include <string>
 #include <stdlib.h>
+#include <sstream>
 #include "generator.h"
 #include "node.h"
 
@@ -19,26 +20,28 @@ static int failFlag = 0;
 //P4 Static Variables
 static int LabelCntr = 0;
 static int VarCntr = 0;
-static std::string Name = "";
 
 std::string newName(nameType what)
-{
-	Name = "";	
+{	
+	std::string name;
+	std::ostringstream ex;
 
 	if(what == VAR)
 	{
-		Name += "T";
-		Name += VarCntr;
+		name = "T";
+		ex << VarCntr;
+		name += ex.str();
 		VarCntr++;
 	}
 	else
 	{
-		Name += "L";
-		Name += LabelCntr;
+		name = "T";
+		ex << LabelCntr;
+		name += ex.str();
 		LabelCntr++;
 	}
 
-	return Name;
+	return name;
 }
 
 //Moves through the tree and operates the stack.
@@ -51,17 +54,25 @@ void recGen(node *holder)
 	}	
 	
 	//If statements that operate the function to be called in the stack.
-	if(holder->label.compare("main") == 0)
+	if(holder->label.compare("<program>") == 0)
 	{
-		globalFlag = 1;
-
-		//Recursive call to children.
+		//Contains only three children 
 		recGen(holder->child1);
 		recGen(holder->child2);
 		recGen(holder->child3);
-		recGen(holder->child4);
-		recGen(holder->child5);
 
+		//Add stop to file
+		std::cout << "STOP" << std::endl;
+
+		//Need to create seperate stack to store both temp and 
+		//declared variables at the end of the file.
+	}
+	else if(holder->label.compare("main") == 0)
+	{
+		//Flips to allow local variable count to start
+		globalFlag = 1;
+
+		//The node "main" does note contain any children.
 	}
 	else if(holder->label.compare("<vars>") == 0)
 	{	
@@ -80,38 +91,137 @@ void recGen(node *holder)
 		if(temp->id_1 == 23 && temp->label.compare("empty") != 0)
 		{
 			r.push(temp->label, temp->value_1, temp->id_1, temp->lineNumber);
-			//std::cout << temp->value_1 << " " << temp->value_3 << std::endl; 
+			recGen(holder->child2);
 		}		
-
-		//Recursive call to children.
-		recGen(holder->child2);
-		recGen(holder->child3);
-		recGen(holder->child4);
-		recGen(holder->child5);
 	}
-	else if(holder->label.compare("<R>") == 0)
+	else if(holder->label.compare("<expr>") == 0)
 	{
-		//When in is detected get the child information and search stack.
-		node *temp = holder->child1;
-		if(temp->id_1 == 23)
+		if(holder->child2 != NULL)
 		{
-			std::cout << temp->value_1 << std::endl;
-		}
-		else if(temp->id_1 == 24)
-		{
-			std::cout << temp->value_1 << std::endl;
+			std::string varHolder = "";
+
+			//expr();
+			recGen(holder->child3);
+			
+			varHolder += newName(VAR);
+			std::cout << "STORE " << varHolder << std::endl;
+
+			//N();
+			recGen(holder->child1);
+			std::cout << "SUB " << varHolder << std::endl;
+
+			varHolder = "";
 		}
 		else
 		{
+			//N();
+			recGen(holder->child1);
+		}
+	
+	}
+	else if(holder->label.compare("<N>") == 0)
+	{
+		if(holder->child2 != NULL)
+		{
+			if(holder->child2->id_1 == 12 && holder->child2 != NULL)
+			{
+				std::string varHolder = "";
+
+				//N();
+				recGen(holder->child3);
+
+				varHolder += newName(VAR);
+				std::cout << "STORE " << varHolder << std::endl;
+
+				//A();
+				recGen(holder->child1);
+				std::cout << "DIV " << varHolder << std::endl;
+
+				varHolder = "";
+			}
+			else if(holder->child2->id_1 == 11 && holder->child2 != NULL)
+			{
+				std::string varHolder = "";
+
+				//N();
+				recGen(holder->child3);
+
+				varHolder += newName(VAR);
+				std::cout << "STORE " << varHolder << std::endl;
+
+				//A();
+				recGen(holder->child1);
+				std::cout << "MULT " << varHolder << std::endl;
+
+				varHolder = "";
+			}
+		}
+		else
+		{
+			//A();
 			recGen(holder->child1);
 		}
 
-		//Recursive call to children.
-		recGen(holder->child2);
-		recGen(holder->child3);
-		recGen(holder->child4);
-		recGen(holder->child5);
 	}
+	else if(holder->label.compare("<A>") == 0)
+	{
+		if(holder->child2 != NULL)
+		{
+			std::string varHolder = "";
+
+			//A();
+			recGen(holder->child3);
+			
+			varHolder += newName(VAR);
+			std::cout << "STORE " << varHolder << std::endl;
+
+			//M();
+			recGen(holder->child1);
+			std::cout << "ADD " << varHolder << std::endl;
+
+			varHolder = "";
+		}
+		else
+		{
+			//M();
+			recGen(holder->child1);
+		}
+	}
+	else if(holder->label.compare("<M>") == 0)
+	{
+		if(holder->child2 != NULL)
+		{
+			//M();
+			recGen(holder->child3);
+			
+			//Negate number by changing sign
+			std::cout << "MULT -1" << std::endl;
+		}
+		else
+		{
+			//R();
+			recGen(holder->child1);
+		}
+	}
+	else if(holder->label.compare("<R>") == 0)
+	{
+		if(holder->child1->id_1 == 23)
+		{
+			r.searchDeclaration(holder->child1->value_1);
+
+			//Stack output needed.
+		}
+		else if(holder->child1->id_1 == 24)
+		{
+			std::cout << "LOAD " << holder->child1->value_1 << std::endl;
+		}
+		else
+		{
+			//(expr())
+			recGen(holder->child1);
+		}
+	}
+	/*
 	else if(holder->label.compare("<in>") == 0)
 	{
 		//When in is detected get the child information and search stack.
@@ -182,6 +292,7 @@ void recGen(node *holder)
 		recGen(holder->child4);
 		recGen(holder->child5);
 	}
+	*/
 	else
 	{
 		//Recursive call to children.

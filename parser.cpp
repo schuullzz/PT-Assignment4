@@ -655,7 +655,7 @@ node* R()
 node* IF()
 {
 	//get node
-	node* node_ex = getNode("<if> if[<expr><R0><expr]then<stat>", -1, -1, -1, "", "", "", -1);
+	node* node_ex = getNode("<if>", -1, -1, -1, "", "", "", -1);
 
 	//If statement checks for [ token
 	if(tokenVec[index].id == 21)
@@ -761,7 +761,7 @@ node* RO()
 node* loop()
 {
 	//get node
-	node *node_ex = getNode("<loop> loop[<expr><R0><expr>]<stat>", -1, -1, -1, "", "", "", -1);
+	node *node_ex = getNode("<loop>", -1, -1, -1, "", "", "", -1);
 
 	//If statement checks for [ token
 	if(tokenVec[index].id == 21)
