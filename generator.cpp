@@ -20,6 +20,7 @@ static int failFlag = 0;
 //P4 Static Variables
 static int LabelCntr = 0;
 static int VarCntr = 0;
+static vector<std::string> initVars;
 
 std::string newName(nameType what)
 {	
@@ -31,6 +32,7 @@ std::string newName(nameType what)
 		name = "T";
 		ex << VarCntr;
 		name += ex.str();
+		initVars.push_back(name);
 		VarCntr++;
 	}
 	else
@@ -38,6 +40,7 @@ std::string newName(nameType what)
 		name = "L";
 		ex << LabelCntr;
 		name += ex.str();
+		initVars.push_back(name);
 		LabelCntr++;
 	}
 
@@ -255,6 +258,7 @@ void recGen(node *holder)
 
 		std::string varHolder = "";
 		varHolder += newName(VAR);
+		std::cout << "STORE " << varHolder << std::endl;
 
 		//expr();
 		recGen(holder->child1);
@@ -291,6 +295,53 @@ void recGen(node *holder)
 
 		labHolder = "";
 	}
+	else if(holder->label.compare("<loop>") == 0)
+	{
+		std::string beginLoop = newName(LABEL);
+		std::cout << beginLoop << ":";
+	
+		//expr();
+		recGen(holder->child3);
+
+		std::string varHolder = newName(VAR);
+		std::cout << "STORE " << varHolder << std::endl;
+
+		//expr();
+		recGen(holder->child1);
+
+		std::cout << "SUB " << varHolder << std::endl;
+
+		std::string endLoop = newName(LABEL);
+
+		//RO operators
+		if(holder->child2->child1->id_1 == 4)
+		{
+			std::cout << "BRNEG " << endLoop << std::endl;
+		}
+		else if(holder->child2->child1->id_1 == 5)
+		{
+			std::cout << "BRPOS " << endLoop << std::endl;
+		}
+		else if(holder->child2->child1->id_1 == 3)
+		{
+			std::cout << "BRNEG " << endLoop << std::endl; 
+			std::cout << "BRPOS " << endLoop << std::endl; 
+		}
+		else if(holder->child2->child1->id_1 == 27)
+		{
+			std::cout << "BRZERO " << endLoop << std::endl;
+		}
+		else if(holder->child2->child1->id_1 == 13)
+		{
+			//Not sure how to calculate
+		}
+
+		//stat()
+		recGen(holder->child4);
+
+		std::cout << "BR " << beginLoop << std::endl;
+		std::cout << endLoop << ": NOOP" << std::endl;
+	}
 	else if(holder->label.compare("<assign>") == 0)
 	{
 		//expr();
@@ -305,42 +356,28 @@ void recGen(node *holder)
 		}
 
 	}
-	/*
 	else if(holder->label.compare("<label>") == 0)
 	{
-		//When label is detected get the child information and push to stack.
-		node *temp = holder->child1;
-		if(temp->id_1 == 23)
+		if(holder->child1->id_1 == 23)
 		{
 			//Check to see if declared
-			r.searchDeclaration(temp->value_1);
+			r.searchDeclaration(holder->child1->value_1);
+
+			std::cout << "BR " << holder->child1->value_1 << std::endl;
 		}
 
-		//Recursive call to children.
-		recGen(holder->child1);
-		recGen(holder->child2);
-		recGen(holder->child3);
-		recGen(holder->child4);
-		recGen(holder->child5);
-	}	
+	}
 	else if(holder->label.compare("<goto>") == 0)
 	{
-		//When goto is detected get the child information and push to stack.
-		node *temp = holder->child1;
-		if(temp->id_1 == 23)
+		if(holder->child1->id_1 == 23)
 		{
 			//Check to see if declared
-			r.searchDeclaration(temp->value_1);
+			r.searchDeclaration(holder->child1->value_1);
+
+			std::cout << holder->child1->value_1 << ": ";
 		}
 
-		//Recursive call to children.
-		recGen(holder->child1);
-		recGen(holder->child2);
-		recGen(holder->child3);
-		recGen(holder->child4);
-		recGen(holder->child5);
 	}
-	*/
 	else
 	{
 		//Recursive call to children.
@@ -521,7 +558,6 @@ bool DynamicStack::searchDeclaration(std::string symbol)
 
 	if(holder == NULL)
 	{
-		//std::cout << "Search Dec error 1" << std::endl;
 		errorStack(holder, holder, symbol, 2, -1);
 	}
 
@@ -535,7 +571,6 @@ bool DynamicStack::searchDeclaration(std::string symbol)
 		holder = holder->next;	
 	}
 
-	//std::cout << "Search Dec error 2" << std::endl;
 	errorStack(holder, holder, symbol, 2, lineNum);
 	return false;
 }
