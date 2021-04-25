@@ -35,7 +35,7 @@ std::string newName(nameType what)
 	}
 	else
 	{
-		name = "T";
+		name = "L";
 		ex << LabelCntr;
 		name += ex.str();
 		LabelCntr++;
@@ -221,43 +221,91 @@ void recGen(node *holder)
 			recGen(holder->child1);
 		}
 	}
-	/*
 	else if(holder->label.compare("<in>") == 0)
 	{
-		//When in is detected get the child information and search stack.
-		node *temp = holder->child1;
-		if(temp->id_1 == 23)
+		if(holder->child1->id_1 == 23)
 		{
+			std::string varHolder = "";
+			varHolder += newName(VAR);
+
 			//Check to see if declared
-			r.searchDeclaration(temp->value_1);
-			std::cout << "READ " << temp->value_1 << std::endl;
+			r.searchDeclaration(holder->child1->value_1);
+		
+
+			std::cout << "READ " << varHolder << std::endl;
+			std::cout << "LOAD " << varHolder << std::endl;
+		}
+	}
+	else if(holder->label.compare("<out> outter") == 0)
+	{
+		//expr();
+		recGen(holder->child1);
+		
+		std::string varHolder = "";
+		varHolder += newName(VAR);
+
+		std:: cout << "STORE " << varHolder << std::endl;
+		std:: cout << "WRITE " << varHolder << std::endl;
+
+	}
+	else if(holder->label.compare("<if>") == 0)
+	{
+		//expr();
+		recGen(holder->child3);
+
+		std::string varHolder = "";
+		varHolder += newName(VAR);
+
+		//expr();
+		recGen(holder->child1);
+		std::cout << "SUB " << varHolder << std::endl;
+
+		std::string labHolder = "";
+		labHolder += newName(LABEL);
+
+		//RO operators
+		if(holder->child2->child1->id_1 == 4)
+		{
+			std::cout << "BRNEG " << labHolder << std::endl;
+		}
+		else if(holder->child2->child1->id_1 == 5)
+		{
+			std::cout << "BRPOS " << labHolder << std::endl;
+		}
+		else if(holder->child2->child1->id_1 == 3)
+		{
+			std::cout << "BRNEG " << labHolder << std::endl; 
+			std::cout << "BRPOS " << labHolder << std::endl; 
+		}
+		else if(holder->child2->child1->id_1 == 27)
+		{
+			std::cout << "BRZERO " << labHolder << std::endl;
+		}
+		else if(holder->child2->child1->id_1 == 13)
+		{
+			//Not sure how to calculate
 		}
 
-		//Recursive call to children.
-		recGen(holder->child2);
-		recGen(holder->child3);
-		recGen(holder->child4);
 		recGen(holder->child5);
+		std::cout << labHolder << ": NOOP" << std::endl;
 
+		labHolder = "";
 	}
 	else if(holder->label.compare("<assign>") == 0)
 	{
-		//When assign is detected get the child information and push to stack.
-		node *temp = holder->child1;	
-		if(temp->id_1 == 23)
+		//expr();
+		recGen(holder->child2);
+
+		if(holder->child1->id_1 == 23)
 		{
 			//Check to see if declared
-			r.searchDeclaration(temp->value_1);
-			std::cout << temp->value_1 << " "; 
+			r.searchDeclaration(holder->child1->value_1);
+
+			//Stack print out needed
 		}
 
-		//Recursive call to children.
-		recGen(holder->child1);
-		recGen(holder->child2);
-		recGen(holder->child3);
-		recGen(holder->child4);
-		recGen(holder->child5);
 	}
+	/*
 	else if(holder->label.compare("<label>") == 0)
 	{
 		//When label is detected get the child information and push to stack.

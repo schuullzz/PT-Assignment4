@@ -1,5 +1,5 @@
 #Author: Timothy Schultz
-#Project 4 main.cpp scanner.cpp parser.cpp stack.cpp scanner.h token.h parser.h generator.h generator.h
+#Project 4 main.cpp scanner.cpp parser.cpp generator.cpp scanner.h token.h parser.h generator.h generator.h
 
 Static Semantics Local Option:
 

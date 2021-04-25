@@ -728,7 +728,7 @@ node* RO()
 			if(tokenVec[index].id == 22)
 			{
 				index++;
-				node_ex->child1 = getNode("[==]", 3, -1, -1, "[==]", "", "", tokenVec[index].lineNumber);
+				node_ex->child1 = getNode("[==]", 27, -1, -1, "[==]", "", "", tokenVec[index].lineNumber);
 			}
 			else
 			{

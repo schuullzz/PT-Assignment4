@@ -4,9 +4,8 @@ data y := 5;
 main
 begin
 
-data p := 5;
-getter p;
-
-proc x;
+if[x => y]
+then
+getter y;;
 
 end
