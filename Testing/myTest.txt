@@ -4,7 +4,6 @@ data y := 5 ;
 main
 begin
 data x := 7 ;
-loop [ y [==] z ]
-  outter x ;;
-  getter y ; 
+loop [ y % *z ]
+  getter y ;; 
 end

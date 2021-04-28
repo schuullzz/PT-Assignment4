@@ -312,42 +312,73 @@ void recGen(node *holder)
 	else if(holder->label.compare("<loop>") == 0)
 	{
 		std::string beginLoop = newName(LABEL);
+		std::string endLoop = newName(LABEL);
+		std::string mod1 = newName(LABEL);
+		std::string mod2 = newName(LABEL);
+		std::string brOut = newName(LABEL);
 		std::cout << beginLoop << ": ";
 	
 		//expr();
 		recGen(holder->child3);
 
-		std::string varHolder = newName(VAR);
-		std::cout << "STORE " << varHolder << std::endl;
-
-		//expr();
-		recGen(holder->child1);
-
-		std::cout << "SUB " << varHolder << std::endl;
-
-		std::string endLoop = newName(LABEL);
-
 		//RO operators
 		if(holder->child2->child1->id_1 == 4)
 		{
+			std::string varHolder = newName(VAR);
+			std::cout << "STORE " << varHolder << std::endl;
+			//expr();
+			recGen(holder->child1);
+			std::cout << "SUB " << varHolder << std::endl;
 			std::cout << "BRZPOS " << endLoop << std::endl;
 		}
 		else if(holder->child2->child1->id_1 == 5)
 		{
+			std::string varHolder = newName(VAR);
+			std::cout << "STORE " << varHolder << std::endl;
+			//expr();
+			recGen(holder->child1);
+			std::cout << "SUB " << varHolder << std::endl;
 			std::cout << "BRZNEG " << endLoop << std::endl;
 		}
 		else if(holder->child2->child1->id_1 == 3)
 		{
+			std::string varHolder = newName(VAR);
+			std::cout << "STORE " << varHolder << std::endl;
+			//expr();
+			recGen(holder->child1);
+			std::cout << "SUB " << varHolder << std::endl;
 			std::cout << "BRNEG " << endLoop << std::endl;
 			std::cout << "BRPOS " << endLoop << std::endl;
 		}
 		else if(holder->child2->child1->id_1 == 27)
 		{
+			std::string varHolder = newName(VAR);
+			std::cout << "STORE " << varHolder << std::endl;
+			//expr();
+			recGen(holder->child1);
+			std::cout << "SUB " << varHolder << std::endl;
 			std::cout << "BRZERO " << endLoop << std::endl; 
 		}
 		else if(holder->child2->child1->id_1 == 13)
 		{
-			//Not sure how to calculate
+			std::string varHolder1 = newName(VAR);
+			std::string varHolder2 = newName(VAR);
+			std::cout << "STORE " << varHolder1 << std::endl;
+			//expr();
+			recGen(holder->child1);
+			std::cout << "STORE " << varHolder2 << std::endl;
+			std::cout << "LOAD " << varHolder1 << std::endl;
+			std::cout << "BRNEG " << mod1 << std::endl;
+			std::cout << "BRPOS " << mod2 << std::endl;
+			std::cout << mod1 << ": NOOP" << std::endl;
+			std::cout << "LOAD " << varHolder2 << std::endl;
+			std::cout << "BRNEG " << endLoop << std::endl;
+			std::cout << "BR " << brOut << std::endl;
+			std::cout << mod2 << ": NOOP" << std::endl;
+			std::cout << "BRPOS " << endLoop << std::endl;
+			std::cout << "BR " << brOut << std::endl;
+			std::cout << brOut << ": NOOP" << std::endl;
+			
 		}
 
 		//stat()
