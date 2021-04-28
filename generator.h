@@ -52,6 +52,7 @@ class DynamicStack
 	bool isEmpty();
 	bool search(StackNode *);
 	bool searchDeclaration(std::string);
+	bool vectorDeclaration(std::string);
 	std::string topStack();
 	void errorStack(StackNode *, StackNode *, std::string, int, int);
 };

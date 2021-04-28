@@ -6,6 +6,7 @@
 #include <string>
 #include <stdlib.h>
 #include <sstream>
+#include <vector>
 #include "generator.h"
 #include "node.h"
 
@@ -20,7 +21,8 @@ static int failFlag = 0;
 //P4 Static Variables
 static int LabelCntr = 0;
 static int VarCntr = 0;
-static vector<std::string> initVars;
+static int stackIndex;
+static std::vector<std::string> initVars;
 
 std::string newName(nameType what)
 {	
@@ -40,7 +42,6 @@ std::string newName(nameType what)
 		name = "L";
 		ex << LabelCntr;
 		name += ex.str();
-		initVars.push_back(name);
 		LabelCntr++;
 	}
 
@@ -69,6 +70,14 @@ void recGen(node *holder)
 
 		//Need to create seperate stack to store both temp and 
 		//declared variables at the end of the file.
+		
+		int sizeVec = initVars.size();
+
+		for(int index = 0; index < sizeVec; index++)
+		{
+			std::cout << initVars.at(index) << " 0" << std::endl;
+		}
+
 	}
 	else if(holder->label.compare("main") == 0)
 	{
@@ -79,23 +88,26 @@ void recGen(node *holder)
 	}
 	else if(holder->label.compare("<vars>") == 0)
 	{	
-		node *temp = holder->child1;
-		if(globalFlag == 0 && temp->label.compare("empty") != 0)
+		if(globalFlag == 0 && holder->child1->label.compare("empty") != 0)
 		{
 			globalVar++;
 			totalVar++;
 		}
-		else if(temp->label.compare("empty") != 0)
+		else if(holder->child1->label.compare("empty") != 0)
 		{
 			numberVar++;
 			totalVar++;
 		}
 
-		if(temp->id_1 == 23 && temp->label.compare("empty") != 0)
+		if(holder->child1->id_1 == 23 && holder->child1->label.compare("empty") != 0)
 		{
-			r.push(temp->label, temp->value_1, temp->id_1, temp->lineNumber);
+			r.push(holder->child1->label, holder->child1->value_1, holder->child1->id_1, holder->child1->lineNumber);
+			r.searchDeclaration(holder->child1->value_1);
+			std::cout << "PUSH" << std::endl;
+			std::cout << "LOAD " << holder->child1->value_3 << std::endl;
+			std::cout << "STACKW " << 0 << std::endl;
 			recGen(holder->child2);
-		}		
+		}
 	}
 	else if(holder->label.compare("<expr>") == 0)
 	{
@@ -210,9 +222,11 @@ void recGen(node *holder)
 	{
 		if(holder->child1->id_1 == 23)
 		{
+			//std::cout << holder->child1->value_1 << std::endl;
 			r.searchDeclaration(holder->child1->value_1);
 
-			//Stack output needed.
+			//Stack output
+			std::cout << "STACKR " << stackIndex << std::endl;	
 		}
 		else if(holder->child1->id_1 == 24)
 		{
@@ -234,9 +248,9 @@ void recGen(node *holder)
 			//Check to see if declared
 			r.searchDeclaration(holder->child1->value_1);
 		
-
 			std::cout << "READ " << varHolder << std::endl;
 			std::cout << "LOAD " << varHolder << std::endl;
+			std::cout << "STACKW " << stackIndex << std::endl;
 		}
 	}
 	else if(holder->label.compare("<out> outter") == 0)
@@ -270,11 +284,11 @@ void recGen(node *holder)
 		//RO operators
 		if(holder->child2->child1->id_1 == 4)
 		{
-			std::cout << "BRNEG " << labHolder << std::endl;
+			std::cout << "BRZPOS " << labHolder << std::endl;
 		}
 		else if(holder->child2->child1->id_1 == 5)
 		{
-			std::cout << "BRPOS " << labHolder << std::endl;
+			std::cout << "BRZNEG " << labHolder << std::endl;
 		}
 		else if(holder->child2->child1->id_1 == 3)
 		{
@@ -298,7 +312,7 @@ void recGen(node *holder)
 	else if(holder->label.compare("<loop>") == 0)
 	{
 		std::string beginLoop = newName(LABEL);
-		std::cout << beginLoop << ":";
+		std::cout << beginLoop << ": ";
 	
 		//expr();
 		recGen(holder->child3);
@@ -316,20 +330,20 @@ void recGen(node *holder)
 		//RO operators
 		if(holder->child2->child1->id_1 == 4)
 		{
-			std::cout << "BRNEG " << endLoop << std::endl;
+			std::cout << "BRZPOS " << endLoop << std::endl;
 		}
 		else if(holder->child2->child1->id_1 == 5)
 		{
-			std::cout << "BRPOS " << endLoop << std::endl;
+			std::cout << "BRZNEG " << endLoop << std::endl;
 		}
 		else if(holder->child2->child1->id_1 == 3)
 		{
-			std::cout << "BRNEG " << endLoop << std::endl; 
-			std::cout << "BRPOS " << endLoop << std::endl; 
+			std::cout << "BRNEG " << endLoop << std::endl;
+			std::cout << "BRPOS " << endLoop << std::endl;
 		}
 		else if(holder->child2->child1->id_1 == 27)
 		{
-			std::cout << "BRZERO " << endLoop << std::endl;
+			std::cout << "BRZERO " << endLoop << std::endl; 
 		}
 		else if(holder->child2->child1->id_1 == 13)
 		{
@@ -352,7 +366,8 @@ void recGen(node *holder)
 			//Check to see if declared
 			r.searchDeclaration(holder->child1->value_1);
 
-			//Stack print out needed
+			//Stack print
+			std::cout << "STACKW " << stackIndex << std::endl;
 		}
 
 	}
@@ -445,12 +460,22 @@ void DynamicStack::push(std::string label, std::string symbol, int id, int lineN
 			//std::cout << "Pushed to empty stack: " << nodeCreated->label << std::endl;
 			top = nodeCreated;
 			nodeCreated->next = NULL;
+			
+			if(!r.vectorDeclaration(symbol))
+			{
+				initVars.push_back(symbol);
+			}
 		}
 		else
 		{
 			//std::cout << "Pushed to stack: " << nodeCreated->label << std::endl;
 			nodeCreated->next = top;
 			top = nodeCreated;
+
+			if(!r.vectorDeclaration(symbol))
+			{
+				initVars.push_back(symbol);
+			}
 		}
 	}
 }
@@ -527,7 +552,6 @@ bool DynamicStack::search(StackNode *n)
 
 			if(holder->id == n->id && holder->symbol.compare(n->symbol) == 0)
 			{
-				//std::cout << "Search error 1" << std::endl;
 				errorStack(holder, n, " ", 1, holder->lineNumber);
 			}
 		}
@@ -535,7 +559,6 @@ bool DynamicStack::search(StackNode *n)
 		{
 			if(holder->id == n->id && holder->symbol.compare(n->symbol) == 0)
 			{
-				//std::cout << "Search error 2" << std::endl;
 				errorStack(holder, n, " ", 1, holder->lineNumber);
 			}
 
@@ -555,10 +578,41 @@ bool DynamicStack::searchDeclaration(std::string symbol)
 	StackNode *holder;
 	holder = top;
 	int lineNum = 0;
+	stackIndex = 0;
 
 	if(holder == NULL)
 	{
 		errorStack(holder, holder, symbol, 2, -1);
+	}
+	
+	holder = top;
+
+	while(holder != NULL)
+	{	
+		if(holder->symbol.compare(symbol) == 0)
+		{
+			return true;
+		}
+
+		stackIndex++;	
+		holder = holder->next;	
+	}
+
+	errorStack(holder, holder, symbol, 2, lineNum);
+	return false;
+}
+
+//**************************************************************************************
+
+bool DynamicStack::vectorDeclaration(std::string symbol)
+{
+	StackNode *holder;
+	holder = top;
+	int lineNum = 0;
+
+	if(holder == NULL)
+	{
+		return false;
 	}
 
 	while(holder != NULL)
@@ -571,12 +625,10 @@ bool DynamicStack::searchDeclaration(std::string symbol)
 		holder = holder->next;	
 	}
 
-	errorStack(holder, holder, symbol, 2, lineNum);
 	return false;
 }
 
 //**************************************************************************************
-
 //topStack: Returns what is on top of the stack.
 std::string DynamicStack::topStack()
 {
