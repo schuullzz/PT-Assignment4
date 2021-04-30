@@ -270,40 +270,75 @@ void recGen(node *holder)
 		//expr();
 		recGen(holder->child3);
 
-		std::string varHolder = "";
-		varHolder += newName(VAR);
-		std::cout << "STORE " << varHolder << std::endl;
-
-		//expr();
-		recGen(holder->child1);
-		std::cout << "SUB " << varHolder << std::endl;
-
-		std::string labHolder = "";
-		labHolder += newName(LABEL);
+		std::string labHolder = newName(LABEL);
 
 		//RO operators
 		if(holder->child2->child1->id_1 == 4)
 		{
+			std::string varHolder = newName(VAR);
+			std::string labHolder = newName(LABEL);
+			std::cout << "STORE " << varHolder << std::endl;
+			//expr();
+			recGen(holder->child1);
+			std::cout << "SUB " << varHolder << std::endl;
 			std::cout << "BRZPOS " << labHolder << std::endl;
 		}
 		else if(holder->child2->child1->id_1 == 5)
 		{
+			std::string varHolder = newName(VAR);
+			std::string labHolder = newName(LABEL);
+			std::cout << "STORE " << varHolder << std::endl;
+			//expr();
+			recGen(holder->child1);
+			std::cout << "SUB " << varHolder << std::endl;
 			std::cout << "BRZNEG " << labHolder << std::endl;
 		}
 		else if(holder->child2->child1->id_1 == 3)
 		{
+			std::string varHolder = newName(VAR);
+			std::string labHolder = newName(LABEL);
+			std::cout << "STORE " << varHolder << std::endl;
+			//expr();
+			recGen(holder->child1);
+			std::cout << "SUB " << varHolder << std::endl;
 			std::cout << "BRNEG " << labHolder << std::endl; 
 			std::cout << "BRPOS " << labHolder << std::endl; 
 		}
 		else if(holder->child2->child1->id_1 == 27)
 		{
+			std::string varHolder = newName(VAR);
+			std::string labHolder = newName(LABEL);
+			std::cout << "STORE " << varHolder << std::endl;
+			//expr();
+			recGen(holder->child1);
+			std::cout << "SUB " << varHolder << std::endl;
 			std::cout << "BRZERO " << labHolder << std::endl;
 		}
 		else if(holder->child2->child1->id_1 == 13)
 		{
-			//Not sure how to calculate
+			std::string varHolder1 = newName(VAR);
+			std::string varHolder2 = newName(VAR);
+			std::string mod1 = newName(LABEL);
+			std::string mod2 = newName(LABEL);
+			std::string mod3 = newName(LABEL);
+			std::cout << "STORE " << varHolder1 << std::endl;
+			//expr();
+			recGen(holder->child1);
+			std::cout << "STORE " << varHolder2 << std::endl;
+			std::cout << "LOAD " << varHolder1 << std::endl;
+			std::cout << "BRNEG " << mod1 << std::endl;
+			std::cout << "BRPOS " << mod2 << std::endl;
+			std::cout << mod1 << ": NOOP" << std::endl;
+			std::cout << "LOAD " << varHolder2 << std::endl;
+			std::cout << "BRNEG " << labHolder << std::endl;
+			std::cout << "BR " << mod3 << std::endl;
+			std::cout << mod2 << ": NOOP" << std::endl;
+			std::cout << "BRPOS " << labHolder << std::endl;
+			std::cout << "BR " << mod3 << std::endl;
+			std::cout << mod3 << ": NOOP" << std::endl;
 		}
 
+		
 		recGen(holder->child5);
 		std::cout << labHolder << ": NOOP" << std::endl;
 
