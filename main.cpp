@@ -22,6 +22,7 @@ static void readInput();
 static int flagNf;
 static int flagF;
 std::string fileBegin;
+std::string fileDelete;
 
 //Global vector
 std::vector<tokenType> tokenVec;
@@ -73,6 +74,7 @@ int main(int argc, char* argv[])
 		openFileName += argv[1];
 		fileBegin = openFileName.substr(0, openFileName.find("."));
 		fileBegin += ".asm";
+		fileDelete = fileBegin;
 		readFile(openFileName);
 	}
 	else
@@ -96,17 +98,10 @@ static void readFile(std::string openFile)
 {
 	//Creates file object with file name.
 	std::ifstream file(openFile.c_str());
-	std::ofstream outFile(fileBegin.c_str());
 
 	if(file == NULL)
 	{
 		std::cout << "Unable to open file." << std::endl;
-		exit(1);
-	}
-
-	if(outFile == NULL)
-	{
-		std::cout << "Unable to create/write to file." << std::endl;
 		exit(1);
 	}
 
@@ -195,10 +190,17 @@ static void readFile(std::string openFile)
 	{
 		return;
 	}
-
-
 	
 	node *tree = parser();
+
+	std::ofstream outFile(fileBegin.c_str());
+
+	if(outFile == NULL)
+	{
+		std::cout << "Unable to create/write to file." << std::endl;
+		exit(1);
+	}
+
 	recGen(tree, outFile);
 	
 	outFile.close();
@@ -208,13 +210,7 @@ static void readFile(std::string openFile)
 static void readInput()
 {
 	std::string keyboardFile = "kb.asm";
-	std::ofstream outFile(keyboardFile.c_str());
-
-	if(outFile == NULL)
-	{
-		std::cout << "Unable to create/write to file." << std::endl;
-		exit(1);
-	}
+	fileDelete = keyboardFile;
 
 	//Contains string from file.
 	std::string inputHolder = "";
@@ -298,6 +294,15 @@ static void readInput()
 	}
 	
 	node *tree = parser();
+
+	std::ofstream outFile(keyboardFile.c_str());
+
+	if(outFile == NULL)
+	{
+		std::cout << "Unable to create/write to file." << std::endl;
+		exit(1);
+	}
+
 	recGen(tree, outFile);
 	
 	outFile.close();

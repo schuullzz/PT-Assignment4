@@ -8,6 +8,7 @@
 #include <sstream>
 #include <vector>
 #include <fstream>
+#include <stdio.h>
 #include "generator.h"
 #include "node.h"
 
@@ -26,6 +27,7 @@ static int stackIndex;
 static int labelIndex = 0;
 static std::vector<std::string> initVars;
 static std::vector<std::string> labelFunction;
+extern std::string fileDelete;
 
 std::string newName(nameType what)
 {	
@@ -515,7 +517,7 @@ void recGen(node *holder, std::ofstream &outFile)
 			r.searchDeclaration(holder->child1->value_1);
 
 			//Stack print
-			//std::cout << "STACKW " << stackIndex << std::endl;
+			//<< "STACKW " << stackIndex << std::endl;
 			outFile << "STACKW " << stackIndex << "\n";
 		}
 
@@ -549,6 +551,8 @@ void recGen(node *holder, std::ofstream &outFile)
 			if(labelIndex - 1 < 0)
 			{
 				std::cout << "Error Void Identifier was not found to create label to branch to." << std::endl;
+				std::cout << "Deleting file " << fileDelete << "." << std::endl;	
+				remove(fileDelete.c_str());
 				exit(1);
 			}
 

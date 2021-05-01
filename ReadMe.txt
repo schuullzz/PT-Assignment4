@@ -1,47 +1,30 @@
 #Author: Timothy Schultz
 #Project 4 main.cpp scanner.cpp parser.cpp generator.cpp scanner.h token.h parser.h generator.h generator.h
 
-Static Semantics Local Option:
+Storage = Local
 
-Static semantics that are processed for compiler are proper definition and use of variables. 
+Test Programs:
+1.
+2.
+3.
+4.
 
-*Variables
+The program is to parse the input, generate a parse tree, perform static semantics, and then generate a 
+target file containing target(assembly) code. The focus of P4 is to test target code and storage allocation.
+Testing will be performed by running the generated targets to assess if the runtime behavior is correct.
 
-Variable is defined before being used for the first time (data Identifier := Integer). 
-Indentifer showing up in any statement is the variable's use.
+Target Name:
+kb.asm if keyboard input
+file.asm if file was the input. The base name matches that of the input file.
 
-*Local Option 
-
-Variables defined before the main keyword are considered in the global scope, those
-insided of any block are considered scoped in that block. The same scoping rules as in
-C are used. A variable is for use in a scope if it is defined in this scope, any of its
-enclosing scopes, or the global scope (static scoping rules).
-
-*Stack
-
-Contains driver for proper functions to be called to build and deconstruct stack.
-Node contains label, symbol, id, lineNumber, and *next. Stack is initiated to top
-of the stack via constructor. Destructor removes remaining nodes and cleans memory.
-
-Methods
-
-void push(std::string, std::string, int, int);
-void pop();
-bool isEmpty();
-bool search(StackNode *);
-bool searchDeclaration(std::string);
-std::string topStack();
-void errorStack(StackNode *, StackNode *, std::string, int);
-
-Driver
-
-Performs left to right traversal and performs different actions depending on subtree and 
-node visted. <Vars> before main are considered global variables. <block> vars are local 
-variables to that particular block.
+Program:
+1. Code generation
+2. Storage allocation local - Matches local option in P3. Variables are considered global in P3 are scoped 
+in the entire program and variables in a block are scoped in that block as in P3.
 
 ## Installation
 
-The main, scanner, parser, and stack has been tested on CentOS v7 with gcc v4.8.5.
+The main, scanner, parser, and generator has been tested on CentOS v7 with gcc v4.8.5.
 
 Using Makefile.
 
@@ -51,9 +34,9 @@ make
 
 ## Usage
 
-statSem [-h]
-statSem [file]
-statSem < [file] 
+compfs [-h]
+compfs [file]
+compfs < [file] 
 
 -h		Displays usage message.
 [file]		Any file containing strings.
@@ -61,30 +44,20 @@ statSem < [file]
 * < redirects file and reads strings as keyboard input.
 
 ```
-./statSem [option var]
+./compfs [option var]
 ```
 
 ## Output
 
-*Terminal 
+Terminal:
+Displays the name of the target file generated.
 
-Displays when nodes are pushed on the stack and when they are popped off. Will
-also indicated when destructor is called and the remaining nodes that are popped off. Which
-will be the global variables.
+Files:
+[Input File Name].asm
+kb.asm
 
-Error Messages
-
-Error will display if identifier was already declared (shows which line declaration occured
-and what line the error occured). 
-
-Error will display if identifer was used before declaration.
+Error Message:
+If proc (proc Identifier) is used before void statement (void Identifier) an error will display. 
 
 ## Comments
 
-Stack was adapted to suit the needs of this project.
-
-Reference:
-
-Starting out with C++ From Control Structures through Objects.
-9th Edition.
-Tony Gaddis.
