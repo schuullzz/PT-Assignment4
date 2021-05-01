@@ -7,6 +7,7 @@
 #include <stdlib.h>
 #include <sstream>
 #include <vector>
+#include <fstream>
 #include "generator.h"
 #include "node.h"
 
@@ -22,7 +23,9 @@ static int failFlag = 0;
 static int LabelCntr = 0;
 static int VarCntr = 0;
 static int stackIndex;
+static int labelIndex = 0;
 static std::vector<std::string> initVars;
+static std::vector<std::string> labelFunction;
 
 std::string newName(nameType what)
 {	
@@ -49,7 +52,7 @@ std::string newName(nameType what)
 }
 
 //Moves through the tree and operates the stack.
-void recGen(node *holder)
+void recGen(node *holder, std::ofstream &outFile)
 {
 	//if tree holder points to null return
 	if(holder == NULL)
@@ -61,12 +64,13 @@ void recGen(node *holder)
 	if(holder->label.compare("<program>") == 0)
 	{
 		//Contains only three children 
-		recGen(holder->child1);
-		recGen(holder->child2);
-		recGen(holder->child3);
+		recGen(holder->child1, outFile);
+		recGen(holder->child2, outFile);
+		recGen(holder->child3, outFile);
 
 		//Add stop to file
-		std::cout << "STOP" << std::endl;
+		//std::cout << "STOP" << std::endl;
+		outFile << "STOP\n";
 
 		//Need to create seperate stack to store both temp and 
 		//declared variables at the end of the file.
@@ -75,7 +79,8 @@ void recGen(node *holder)
 
 		for(int index = 0; index < sizeVec; index++)
 		{
-			std::cout << initVars.at(index) << " 0" << std::endl;
+			//std::cout << initVars.at(index) << " 0" << std::endl;
+			outFile << initVars.at(index) << " 0\n";
 		}
 
 	}
@@ -103,10 +108,13 @@ void recGen(node *holder)
 		{
 			r.push(holder->child1->label, holder->child1->value_1, holder->child1->id_1, holder->child1->lineNumber);
 			r.searchDeclaration(holder->child1->value_1);
-			std::cout << "PUSH" << std::endl;
-			std::cout << "LOAD " << holder->child1->value_3 << std::endl;
-			std::cout << "STACKW " << 0 << std::endl;
-			recGen(holder->child2);
+			//std::cout << "PUSH" << std::endl;
+			//std::cout << "LOAD " << holder->child1->value_3 << std::endl;
+			//std::cout << "STACKW " << 0 << std::endl;
+			outFile << "PUSH\n";
+			outFile << "LOAD " << holder->child1->value_1 << "\n";
+			outFile << "STACKW 0\n";  
+			recGen(holder->child2, outFile);
 		}
 	}
 	else if(holder->label.compare("<expr>") == 0)
@@ -116,21 +124,23 @@ void recGen(node *holder)
 			std::string varHolder = "";
 
 			//expr();
-			recGen(holder->child3);
+			recGen(holder->child3, outFile);
 			
 			varHolder += newName(VAR);
-			std::cout << "STORE " << varHolder << std::endl;
+			//std::cout << "STORE " << varHolder << std::endl;
+			outFile << "STORE " << varHolder << "\n";
 
 			//N();
-			recGen(holder->child1);
-			std::cout << "SUB " << varHolder << std::endl;
+			recGen(holder->child1, outFile);
+			//std::cout << "SUB " << varHolder << std::endl;
+			outFile << "SUB " << varHolder << "\n";
 
 			varHolder = "";
 		}
 		else
 		{
 			//N();
-			recGen(holder->child1);
+			recGen(holder->child1, outFile);
 		}
 	
 	}
@@ -143,14 +153,16 @@ void recGen(node *holder)
 				std::string varHolder = "";
 
 				//N();
-				recGen(holder->child3);
+				recGen(holder->child3, outFile);
 
 				varHolder += newName(VAR);
-				std::cout << "STORE " << varHolder << std::endl;
+				//std::cout << "STORE " << varHolder << std::endl;
+				outFile << "STORE " << varHolder << "\n";
 
 				//A();
-				recGen(holder->child1);
-				std::cout << "DIV " << varHolder << std::endl;
+				recGen(holder->child1, outFile);
+				//std::cout << "DIV " << varHolder << std::endl;
+				outFile << "DIV " << varHolder << "\n";
 
 				varHolder = "";
 			}
@@ -159,14 +171,16 @@ void recGen(node *holder)
 				std::string varHolder = "";
 
 				//N();
-				recGen(holder->child3);
+				recGen(holder->child3, outFile);
 
 				varHolder += newName(VAR);
-				std::cout << "STORE " << varHolder << std::endl;
+				//std::cout << "STORE " << varHolder << std::endl;
+				outFile << "STORE " << varHolder << "\n";
 
 				//A();
-				recGen(holder->child1);
-				std::cout << "MULT " << varHolder << std::endl;
+				recGen(holder->child1, outFile);
+				//std::cout << "MULT " << varHolder << std::endl;
+				outFile << "MULT " << varHolder << "\n";
 
 				varHolder = "";
 			}
@@ -174,7 +188,7 @@ void recGen(node *holder)
 		else
 		{
 			//A();
-			recGen(holder->child1);
+			recGen(holder->child1, outFile);
 		}
 
 	}
@@ -185,21 +199,23 @@ void recGen(node *holder)
 			std::string varHolder = "";
 
 			//A();
-			recGen(holder->child3);
+			recGen(holder->child3, outFile);
 			
 			varHolder += newName(VAR);
-			std::cout << "STORE " << varHolder << std::endl;
+			//std::cout << "STORE " << varHolder << std::endl;
+			outFile << "STORE " << varHolder << "\n";
 
 			//M();
-			recGen(holder->child1);
-			std::cout << "ADD " << varHolder << std::endl;
+			recGen(holder->child1, outFile);
+			//std::cout << "ADD " << varHolder << std::endl;
+			outFile << "ADD " << varHolder << "\n";
 
 			varHolder = "";
 		}
 		else
 		{
 			//M();
-			recGen(holder->child1);
+			recGen(holder->child1, outFile);
 		}
 	}
 	else if(holder->label.compare("<M>") == 0)
@@ -207,15 +223,16 @@ void recGen(node *holder)
 		if(holder->child2 != NULL)
 		{
 			//M();
-			recGen(holder->child3);
+			recGen(holder->child3, outFile);
 			
 			//Negate number by changing sign
-			std::cout << "MULT -1" << std::endl;
+			//std::cout << "MULT -1" << std::endl;
+			outFile << "MULT -1\n";
 		}
 		else
 		{
 			//R();
-			recGen(holder->child1);
+			recGen(holder->child1, outFile);
 		}
 	}
 	else if(holder->label.compare("<R>") == 0)
@@ -226,16 +243,18 @@ void recGen(node *holder)
 			r.searchDeclaration(holder->child1->value_1);
 
 			//Stack output
-			std::cout << "STACKR " << stackIndex << std::endl;	
+			//std::cout << "STACKR " << stackIndex << std::endl;	
+			outFile << "STACKR " << stackIndex << "\n";
 		}
 		else if(holder->child1->id_1 == 24)
 		{
-			std::cout << "LOAD " << holder->child1->value_1 << std::endl;
+			//std::cout << "LOAD " << holder->child1->value_1 << std::endl;
+			outFile << "LOAD " << holder->child1->value_1 << "\n";
 		}
 		else
 		{
 			//(expr())
-			recGen(holder->child1);
+			recGen(holder->child1, outFile);
 		}
 	}
 	else if(holder->label.compare("<in>") == 0)
@@ -248,27 +267,34 @@ void recGen(node *holder)
 			//Check to see if declared
 			r.searchDeclaration(holder->child1->value_1);
 		
-			std::cout << "READ " << varHolder << std::endl;
-			std::cout << "LOAD " << varHolder << std::endl;
-			std::cout << "STACKW " << stackIndex << std::endl;
+			//std::cout << "READ " << varHolder << std::endl;
+			//std::cout << "LOAD " << varHolder << std::endl;
+			//std::cout << "STACKW " << stackIndex << std::endl;
+
+			outFile << "READ " << varHolder << "\n";
+			outFile << "LOAD " << varHolder << "\n";
+			outFile << "STACKW " << stackIndex << "\n";
 		}
 	}
 	else if(holder->label.compare("<out> outter") == 0)
 	{
 		//expr();
-		recGen(holder->child1);
+		recGen(holder->child1, outFile);
 		
 		std::string varHolder = "";
 		varHolder += newName(VAR);
 
-		std:: cout << "STORE " << varHolder << std::endl;
-		std:: cout << "WRITE " << varHolder << std::endl;
+		//std:: cout << "STORE " << varHolder << std::endl;
+		//std:: cout << "WRITE " << varHolder << std::endl;
+
+		outFile << "STORE " << varHolder << "\n";
+		outFile << "WRITE " << varHolder << "\n";
 
 	}
 	else if(holder->label.compare("<if>") == 0)
 	{
 		//expr();
-		recGen(holder->child3);
+		recGen(holder->child3, outFile);
 
 		std::string labHolder = newName(LABEL);
 
@@ -277,42 +303,55 @@ void recGen(node *holder)
 		{
 			std::string varHolder = newName(VAR);
 			std::string labHolder = newName(LABEL);
-			std::cout << "STORE " << varHolder << std::endl;
+			//std::cout << "STORE " << varHolder << std::endl;
+			outFile << "STORE " << varHolder << "\n";
 			//expr();
-			recGen(holder->child1);
-			std::cout << "SUB " << varHolder << std::endl;
-			std::cout << "BRZPOS " << labHolder << std::endl;
+			recGen(holder->child1, outFile);
+			//std::cout << "SUB " << varHolder << std::endl;
+			//std::cout << "BRZPOS " << labHolder << std::endl;
+			outFile << "SUB " << varHolder << "\n";
+			outFile << "BRZPOS " << labHolder << "\n";
 		}
 		else if(holder->child2->child1->id_1 == 5)
 		{
 			std::string varHolder = newName(VAR);
 			std::string labHolder = newName(LABEL);
-			std::cout << "STORE " << varHolder << std::endl;
+			//std::cout << "STORE " << varHolder << std::endl;
+			outFile << "STORE " << varHolder << "\n";
 			//expr();
-			recGen(holder->child1);
-			std::cout << "SUB " << varHolder << std::endl;
-			std::cout << "BRZNEG " << labHolder << std::endl;
+			recGen(holder->child1, outFile);
+			//std::cout << "SUB " << varHolder << std::endl;
+			//std::cout << "BRZNEG " << labHolder << std::endl;
+			outFile << "SUB " << varHolder << "\n";
+			outFile << "BRZNEG " << labHolder << "\n";
 		}
 		else if(holder->child2->child1->id_1 == 3)
 		{
 			std::string varHolder = newName(VAR);
 			std::string labHolder = newName(LABEL);
-			std::cout << "STORE " << varHolder << std::endl;
+			//std::cout << "STORE " << varHolder << std::endl;
+			outFile << "STORE " << varHolder << "\n";
 			//expr();
-			recGen(holder->child1);
-			std::cout << "SUB " << varHolder << std::endl;
-			std::cout << "BRNEG " << labHolder << std::endl; 
-			std::cout << "BRPOS " << labHolder << std::endl; 
+			recGen(holder->child1, outFile);
+			//std::cout << "SUB " << varHolder << std::endl;
+			//std::cout << "BRNEG " << labHolder << std::endl; 
+			//std::cout << "BRPOS " << labHolder << std::endl; 
+			outFile << "SUB " << varHolder << "\n";
+			outFile << "BRNEG " << labHolder << "\n";
+			outFile << "BRPOS " << labHolder << "\n";
 		}
 		else if(holder->child2->child1->id_1 == 27)
 		{
 			std::string varHolder = newName(VAR);
 			std::string labHolder = newName(LABEL);
-			std::cout << "STORE " << varHolder << std::endl;
+			//std::cout << "STORE " << varHolder << std::endl;
+			outFile << "STORE " << varHolder << "\n";
 			//expr();
-			recGen(holder->child1);
-			std::cout << "SUB " << varHolder << std::endl;
-			std::cout << "BRZERO " << labHolder << std::endl;
+			recGen(holder->child1, outFile);
+			//std::cout << "SUB " << varHolder << std::endl;
+			//std::cout << "BRZERO " << labHolder << std::endl;
+			outFile << "SUB " << varHolder << "\n";
+			outFile << "BRZERO " << labHolder << "\n";
 		}
 		else if(holder->child2->child1->id_1 == 13)
 		{
@@ -321,28 +360,42 @@ void recGen(node *holder)
 			std::string mod1 = newName(LABEL);
 			std::string mod2 = newName(LABEL);
 			std::string mod3 = newName(LABEL);
-			std::cout << "STORE " << varHolder1 << std::endl;
+			//std::cout << "STORE " << varHolder1 << std::endl;
+			outFile << "STORE " << varHolder1 << "\n";
 			//expr();
-			recGen(holder->child1);
-			std::cout << "STORE " << varHolder2 << std::endl;
-			std::cout << "LOAD " << varHolder1 << std::endl;
-			std::cout << "BRNEG " << mod1 << std::endl;
-			std::cout << "BRPOS " << mod2 << std::endl;
-			std::cout << mod1 << ": NOOP" << std::endl;
-			std::cout << "LOAD " << varHolder2 << std::endl;
-			std::cout << "BRNEG " << labHolder << std::endl;
-			std::cout << "BR " << mod3 << std::endl;
-			std::cout << mod2 << ": NOOP" << std::endl;
-			std::cout << "BRPOS " << labHolder << std::endl;
-			std::cout << "BR " << mod3 << std::endl;
-			std::cout << mod3 << ": NOOP" << std::endl;
+			recGen(holder->child1, outFile);
+			//std::cout << "STORE " << varHolder2 << std::endl;
+			//std::cout << "LOAD " << varHolder1 << std::endl;
+			//std::cout << "BRNEG " << mod1 << std::endl;
+			//std::cout << "BRPOS " << mod2 << std::endl;
+			//std::cout << mod1 << ": NOOP" << std::endl;
+			//std::cout << "LOAD " << varHolder2 << std::endl;
+			//std::cout << "BRNEG " << labHolder << std::endl;
+			//std::cout << "BR " << mod3 << std::endl;
+			//std::cout << mod2 << ": NOOP" << std::endl;
+			//std::cout << "BRPOS " << labHolder << std::endl;
+			//std::cout << "BR " << mod3 << std::endl;
+			//std::cout << mod3 << ": NOOP" << std::endl;
+
+			outFile << "STORE " << varHolder2 << "\n";
+			outFile << "LOAD " << varHolder1 << "\n";
+			outFile << "BRNEG " << mod1 << "\n";
+			outFile << "BRPOS " << mod2 << "\n";
+			outFile << mod1 << ": NOOP" << "\n";
+			outFile << "LOAD " << varHolder2 << "\n";
+			outFile << "BRNEG " << labHolder << "\n";
+			outFile << "BR " << mod3 << "\n";
+			outFile << mod2 << ": NOOP" << "\n";
+			outFile << "BRPOS " << labHolder << "\n";
+			outFile << "BR " << mod3 << "\n";
+			outFile << mod3 << ": NOOP" << "\n";
 		}
 
 		
-		recGen(holder->child5);
-		std::cout << labHolder << ": NOOP" << std::endl;
+		recGen(holder->child5, outFile);
+		//std::cout << labHolder << ": NOOP" << std::endl;
+		outFile << labHolder << ": NOOP\n";
 
-		labHolder = "";
 	}
 	else if(holder->label.compare("<loop>") == 0)
 	{
@@ -351,81 +404,110 @@ void recGen(node *holder)
 		std::string mod1 = newName(LABEL);
 		std::string mod2 = newName(LABEL);
 		std::string brOut = newName(LABEL);
-		std::cout << beginLoop << ": ";
+		//std::cout << beginLoop << ": ";
+		outFile << beginLoop << ": NOOP\n";
 	
 		//expr();
-		recGen(holder->child3);
+		recGen(holder->child3, outFile);
 
 		//RO operators
 		if(holder->child2->child1->id_1 == 4)
 		{
 			std::string varHolder = newName(VAR);
-			std::cout << "STORE " << varHolder << std::endl;
+			//std::cout << "STORE " << varHolder << std::endl;
+			outFile << "STORE " << varHolder << "\n";
 			//expr();
-			recGen(holder->child1);
-			std::cout << "SUB " << varHolder << std::endl;
-			std::cout << "BRZPOS " << endLoop << std::endl;
+			recGen(holder->child1, outFile);
+			//std::cout << "SUB " << varHolder << std::endl;
+			//std::cout << "BRZPOS " << endLoop << std::endl;
+			outFile << "SUB " << varHolder << "\n";
+			outFile << "BRZPOS " << endLoop << "\n";
 		}
 		else if(holder->child2->child1->id_1 == 5)
 		{
 			std::string varHolder = newName(VAR);
-			std::cout << "STORE " << varHolder << std::endl;
+			//std::cout << "STORE " << varHolder << std::endl;
+			outFile << "STORE " << varHolder << "\n";
 			//expr();
-			recGen(holder->child1);
-			std::cout << "SUB " << varHolder << std::endl;
-			std::cout << "BRZNEG " << endLoop << std::endl;
+			recGen(holder->child1, outFile);
+			//std::cout << "SUB " << varHolder << std::endl;
+			//std::cout << "BRZNEG " << endLoop << std::endl;
+			outFile << "SUB " << varHolder << "\n";
+			outFile << "BRZNEG " << endLoop << "\n";
 		}
 		else if(holder->child2->child1->id_1 == 3)
 		{
 			std::string varHolder = newName(VAR);
-			std::cout << "STORE " << varHolder << std::endl;
+			//std::cout << "STORE " << varHolder << std::endl;
+			outFile << "STORE " << varHolder << "\n";
 			//expr();
-			recGen(holder->child1);
-			std::cout << "SUB " << varHolder << std::endl;
-			std::cout << "BRNEG " << endLoop << std::endl;
-			std::cout << "BRPOS " << endLoop << std::endl;
+			recGen(holder->child1, outFile);
+			//std::cout << "SUB " << varHolder << std::endl;
+			//std::cout << "BRNEG " << endLoop << std::endl;
+			//std::cout << "BRPOS " << endLoop << std::endl;
+			outFile << "SUB " << varHolder << "\n";
+			outFile << "BRNEG " << endLoop << "\n";
+			outFile << "BRPOS " << endLoop << "\n";
 		}
 		else if(holder->child2->child1->id_1 == 27)
 		{
 			std::string varHolder = newName(VAR);
-			std::cout << "STORE " << varHolder << std::endl;
+			//std::cout << "STORE " << varHolder << std::endl;
+			outFile << "STORE " << varHolder << "\n";
 			//expr();
-			recGen(holder->child1);
-			std::cout << "SUB " << varHolder << std::endl;
-			std::cout << "BRZERO " << endLoop << std::endl; 
+			recGen(holder->child1, outFile);
+			//std::cout << "SUB " << varHolder << std::endl;
+			//std::cout << "BRZERO " << endLoop << std::endl; 
+			outFile << "SUB " << varHolder << "\n";
+			outFile << "BRZERO " << endLoop << "\n"; 
 		}
 		else if(holder->child2->child1->id_1 == 13)
 		{
 			std::string varHolder1 = newName(VAR);
 			std::string varHolder2 = newName(VAR);
-			std::cout << "STORE " << varHolder1 << std::endl;
+			//std::cout << "STORE " << varHolder1 << std::endl;
+			outFile << "STORE " << varHolder1 << "\n";
 			//expr();
-			recGen(holder->child1);
-			std::cout << "STORE " << varHolder2 << std::endl;
-			std::cout << "LOAD " << varHolder1 << std::endl;
-			std::cout << "BRNEG " << mod1 << std::endl;
-			std::cout << "BRPOS " << mod2 << std::endl;
-			std::cout << mod1 << ": NOOP" << std::endl;
-			std::cout << "LOAD " << varHolder2 << std::endl;
-			std::cout << "BRNEG " << endLoop << std::endl;
-			std::cout << "BR " << brOut << std::endl;
-			std::cout << mod2 << ": NOOP" << std::endl;
-			std::cout << "BRPOS " << endLoop << std::endl;
-			std::cout << "BR " << brOut << std::endl;
-			std::cout << brOut << ": NOOP" << std::endl;
+			recGen(holder->child1, outFile);
+			//std::cout << "STORE " << varHolder2 << std::endl;
+			//std::cout << "LOAD " << varHolder1 << std::endl;
+			//std::cout << "BRNEG " << mod1 << std::endl;
+			//std::cout << "BRPOS " << mod2 << std::endl;
+			//std::cout << mod1 << ": NOOP" << std::endl;
+			//std::cout << "LOAD " << varHolder2 << std::endl;
+			//std::cout << "BRNEG " << endLoop << std::endl;
+			//std::cout << "BR " << brOut << std::endl;
+			//std::cout << mod2 << ": NOOP" << std::endl;
+			//std::cout << "BRPOS " << endLoop << std::endl;
+			//std::cout << "BR " << brOut << std::endl;
+			//std::cout << brOut << ": NOOP" << std::endl;
 			
+			outFile << "STORE " << varHolder2 << "\n";
+			outFile << "LOAD " << varHolder1 << "\n";
+			outFile << "BRNEG " << mod1 << "\n";
+			outFile << "BRPOS " << mod2 << "\n";
+			outFile << mod1 << ": NOOP" << "\n";
+			outFile << "LOAD " << varHolder2 << "\n";
+			outFile << "BRNEG " << endLoop << "\n";
+			outFile << "BR " << brOut << "\n";
+			outFile << mod2 << ": NOOP" << "\n";
+			outFile << "BRPOS " << endLoop << "\n";
+			outFile << "BR " << brOut << "\n";
+			outFile << brOut << ": NOOP" << "\n";
 		}
 
 		//stat()
-		recGen(holder->child4);
+		recGen(holder->child4, outFile);
 
-		std::cout << "BR " << beginLoop << std::endl;
-		std::cout << endLoop << ": NOOP" << std::endl;
+		//std::cout << "BR " << beginLoop << std::endl;
+		//std::cout << endLoop << ": NOOP" << std::endl;
+		outFile << "BR " << beginLoop << "\n";
+		outFile << endLoop << ": NOOP\n";
 	}
 	else if(holder->label.compare("<assign>") == 0)
 	{
 		//expr();
-		recGen(holder->child2);
+		recGen(holder->child2, outFile);
 
 		if(holder->child1->id_1 == 23)
 		{
@@ -433,7 +515,8 @@ void recGen(node *holder)
 			r.searchDeclaration(holder->child1->value_1);
 
 			//Stack print
-			std::cout << "STACKW " << stackIndex << std::endl;
+			//std::cout << "STACKW " << stackIndex << std::endl;
+			outFile << "STACKW " << stackIndex << "\n";
 		}
 
 	}
@@ -441,10 +524,16 @@ void recGen(node *holder)
 	{
 		if(holder->child1->id_1 == 23)
 		{
-			//Check to see if declared
-			r.searchDeclaration(holder->child1->value_1);
+			std::ostringstream ex;
 
-			std::cout << "BR " << holder->child1->value_1 << std::endl;
+			std::string labelName = "";
+			labelName += holder->child1->value_1;
+			ex << labelIndex;
+			labelName += ex.str();
+			labelIndex++;			
+
+			//std::cout << labelName << ": NOOP" << std::endl;
+			outFile << labelName << ": NOOP\n";
 		}
 
 	}
@@ -452,21 +541,33 @@ void recGen(node *holder)
 	{
 		if(holder->child1->id_1 == 23)
 		{
-			//Check to see if declared
-			r.searchDeclaration(holder->child1->value_1);
+			std::ostringstream ex;
 
-			std::cout << holder->child1->value_1 << ": ";
+			std::string labelName = "";
+			labelName += holder->child1->value_1;
+			
+			if(labelIndex - 1 < 0)
+			{
+				std::cout << "Error Void Identifier was not found to create label to branch to." << std::endl;
+				exit(1);
+			}
+
+			ex << labelIndex - 1;
+			labelName += ex.str();
+
+			//std::cout << "BR " << labelName << std::endl;			
+			outFile << "BR " << labelName << "\n";			
 		}
 
 	}
 	else
 	{
 		//Recursive call to children.
-		recGen(holder->child1);
-		recGen(holder->child2);
-		recGen(holder->child3);
-		recGen(holder->child4);
-		recGen(holder->child5);
+		recGen(holder->child1, outFile);
+		recGen(holder->child2, outFile);
+		recGen(holder->child3, outFile);
+		recGen(holder->child4, outFile);
+		recGen(holder->child5, outFile);
 	}
 	
 }

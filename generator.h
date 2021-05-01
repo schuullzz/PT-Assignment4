@@ -15,7 +15,7 @@ typedef enum {VAR, LABEL} nameType;
 std::string newName(nameType);
 
 //Prototype for driver for code generation.
-void recGen(node *);
+void recGen(node *, std::ofstream &);
 
 //Stack class
 class DynamicStack

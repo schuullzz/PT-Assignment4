@@ -1,9 +1,5 @@
 $$ p2g1, remember to try variants of this with each different statement $$
-data x := 5;
-data y := 10;
 main
 begin
-if [ x % *y ]
-then 
-getter x ; ;
+getter x ;
 end

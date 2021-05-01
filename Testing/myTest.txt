@@ -1,9 +1,0 @@
-$$ p3g2 $$
-data z := 10 ;
-data y := 5 ;
-main
-begin
-data x := 7 ;
-loop [ y % *z ]
-  getter y ;; 
-end

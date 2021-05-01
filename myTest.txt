@@ -1,4 +1,4 @@
-$$ p2g5 $$
+$$ p3g2 $$
 data z := 321 ;
 data y := 567 ;
 main
@@ -8,8 +8,9 @@ loop [ y => z ]
   begin
   data z := 3 ;
      begin
-     proc x ; 
+     data p := 0;
+     outter x;
      end
   end ;
-outter x ;
+outter x;
 end

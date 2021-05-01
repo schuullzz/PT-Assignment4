@@ -21,6 +21,7 @@ static void readInput();
 //Static global variable
 static int flagNf;
 static int flagF;
+std::string fileBegin;
 
 //Global vector
 std::vector<tokenType> tokenVec;
@@ -70,7 +71,8 @@ int main(int argc, char* argv[])
 
 		std:: string openFileName = ""; 
 		openFileName += argv[1];
-		
+		fileBegin = openFileName.substr(0, openFileName.find("."));
+		fileBegin += ".asm";
 		readFile(openFileName);
 	}
 	else
@@ -94,10 +96,17 @@ static void readFile(std::string openFile)
 {
 	//Creates file object with file name.
 	std::ifstream file(openFile.c_str());
+	std::ofstream outFile(fileBegin.c_str());
 
 	if(file == NULL)
 	{
 		std::cout << "Unable to open file." << std::endl;
+		exit(1);
+	}
+
+	if(outFile == NULL)
+	{
+		std::cout << "Unable to create/write to file." << std::endl;
 		exit(1);
 	}
 
@@ -175,6 +184,9 @@ static void readFile(std::string openFile)
 				
 		}
 	}
+
+	file.close();
+
 	//Issued a end of token since file ended.
 	errorFlag = FADriver("EOF", lineNumber);
 	
@@ -184,21 +196,26 @@ static void readFile(std::string openFile)
 		return;
 	}
 
-	/*
-	for(int i = 0; i < (int)tokenVec.size(); i++)
-	{
-		std::cout << tokenVec[i].symbol << std::endl;
-	}
-	*/
 
 	
 	node *tree = parser();
-	recGen(tree);	
+	recGen(tree, outFile);
+	
+	outFile.close();
 }
 
 //Function is called to read from keyboard.
 static void readInput()
 {
+	std::string keyboardFile = "kb.asm";
+	std::ofstream outFile(keyboardFile.c_str());
+
+	if(outFile == NULL)
+	{
+		std::cout << "Unable to create/write to file." << std::endl;
+		exit(1);
+	}
+
 	//Contains string from file.
 	std::string inputHolder = "";
 	//String from file with out comments.
@@ -280,14 +297,9 @@ static void readInput()
 		return;
 	}
 	
-	/*	
-	for(int i = 0; i < (int)tokenVec.size(); i++)
-	{
-		std::cout << tokenVec[i].symbol << std::endl;
-	}
-	*/
-
 	node *tree = parser();
-	recGen(tree);	
+	recGen(tree, outFile);
+	
+	outFile.close();
 }
 

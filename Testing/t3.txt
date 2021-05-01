@@ -1,5 +1,0 @@
-main
-
-begin
-    getter x ;
-end

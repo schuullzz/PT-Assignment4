@@ -28,3 +28,4 @@ stack.o: generator.cpp stack.h
 .PHONY: clean
 clean:
 	/bin/rm -f *.o $(TARGET)
+	/bin/rm -f *.asm $(TARGET)
