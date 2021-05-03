@@ -88,6 +88,12 @@ void recGen(node *holder, std::ofstream &outFile)
 		recGen(holder->child2, outFile);
 		recGen(holder->child3, outFile);
 
+		for(int x = 0; x < totalVar; x++)
+		{
+			r.pop();
+			outFile << "POP\n";	
+		}
+
 		//Add stop to file
 		//std::cout << "STOP" << std::endl;
 		outFile << "STOP\n";
@@ -139,9 +145,10 @@ void recGen(node *holder, std::ofstream &outFile)
 			//std::cout << "PUSH" << std::endl;
 			//std::cout << "LOAD " << holder->child1->value_3 << std::endl;
 			//std::cout << "STACKW " << 0 << std::endl;
+
 			outFile << "PUSH\n";
-			outFile << "LOAD " << holder->child1->value_1 << "\n";
-			outFile << "STACKW 0\n";  
+			outFile << "LOAD " << holder->child1->value_3 << "\n";
+			outFile << "STACKW " << stackIndex << "\n";  
 			
 			//recursive call passing child 2.
 			recGen(holder->child2, outFile);
@@ -507,7 +514,7 @@ void recGen(node *holder, std::ofstream &outFile)
 			//std::cout << "SUB " << varHolder << std::endl;
 			//std::cout << "BRZPOS " << endLoop << std::endl;
 			outFile << "SUB " << varHolder << "\n";
-			outFile << "BRZPOS " << endLoop << "\n";
+			outFile << "BRZNEG " << endLoop << "\n";
 		}
 		else if(holder->child2->child1->id_1 == 5)
 		{
@@ -523,7 +530,7 @@ void recGen(node *holder, std::ofstream &outFile)
 			//std::cout << "SUB " << varHolder << std::endl;
 			//std::cout << "BRZNEG " << endLoop << std::endl;
 			outFile << "SUB " << varHolder << "\n";
-			outFile << "BRZNEG " << endLoop << "\n";
+			outFile << "BRZPOS " << endLoop << "\n";
 		}
 		else if(holder->child2->child1->id_1 == 3)
 		{
