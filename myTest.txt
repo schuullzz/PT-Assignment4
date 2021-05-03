@@ -3,14 +3,9 @@ data z := 321 ;
 data y := 567 ;
 main
 begin
-data x := 5 ;
-loop [ y => z ]
-  begin
-  data z := 3 ;
-     begin
-     data p := 0;
-     outter x;
-     end
-  end ;
-outter x;
+void z;
+void y;
+proc z;
+proc y;
+void y;
 end

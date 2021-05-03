@@ -1,6 +1,6 @@
 //Author: Timothy Schultz
 //CS 4280
-//Project 3
+//Project 4
 
 #include <iostream>
 #include <string>
@@ -12,28 +12,46 @@
 #include "generator.h"
 #include "node.h"
 
-//P3 Static Variables
+//*************P3 Static Variables**************
+//Stack used for variables.
 static DynamicStack r;
+//Number of global variables.
 static int globalVar = 0;
+//Number of scoped variables.
 static int numberVar = 0;
+//Number of total variables.
 static int totalVar = 0;
+//Keeps track if there are any global variables 
+//and when they end.
 static int globalFlag = 0;
-static int failFlag = 0;
 
-//P4 Static Variables
+//*************P4 Static Variables**************
+//Keeps track of the number of temporary lables.
 static int LabelCntr = 0;
+//Keeps track of the number of temporary variables.
 static int VarCntr = 0;
+//Keeps track of the index of the stack.
 static int stackIndex;
+//Keeps track of label index for label function.
 static int labelIndex = 0;
+//Keeps track of the temp variables used to set to zero
+//at the end of program.
 static std::vector<std::string> initVars;
-static std::vector<std::string> labelFunction;
+static std::vector<std::string> initLabels;
+//Holds the name of file to be deleted if error occurs.
 extern std::string fileDelete;
 
+//Function that creates temp variable names and labels.
+//Taken from class notes.
 std::string newName(nameType what)
 {	
+	//Contains concatenated string to be returened.
 	std::string name;
+	//Stream object to push number into name.
 	std::ostringstream ex;
 
+	//If else that determines to either create temp var or 
+	//label.
 	if(what == VAR)
 	{
 		name = "T";
@@ -53,7 +71,7 @@ std::string newName(nameType what)
 	return name;
 }
 
-//Moves through the tree and operates the stack.
+//Moves through the tree and operates the stack. 
 void recGen(node *holder, std::ofstream &outFile)
 {
 	//if tree holder points to null return
@@ -77,8 +95,10 @@ void recGen(node *holder, std::ofstream &outFile)
 		//Need to create seperate stack to store both temp and 
 		//declared variables at the end of the file.
 		
+		//Contains the size of the temp variable vec size.
 		int sizeVec = initVars.size();
 
+		//Prints out the temp variables with zero at the end of program.
 		for(int index = 0; index < sizeVec; index++)
 		{
 			//std::cout << initVars.at(index) << " 0" << std::endl;
@@ -95,6 +115,8 @@ void recGen(node *holder, std::ofstream &outFile)
 	}
 	else if(holder->label.compare("<vars>") == 0)
 	{	
+		//If else that determines if current variable is global or scoped and increments 
+		//correct variable.
 		if(globalFlag == 0 && holder->child1->label.compare("empty") != 0)
 		{
 			globalVar++;
@@ -106,21 +128,29 @@ void recGen(node *holder, std::ofstream &outFile)
 			totalVar++;
 		}
 
+		//If statement that records declared variable with PUSH, LOAD, and STACKW.
 		if(holder->child1->id_1 == 23 && holder->child1->label.compare("empty") != 0)
 		{
+			//Pushed on stack r with variables information also checking if already declared.
 			r.push(holder->child1->label, holder->child1->value_1, holder->child1->id_1, holder->child1->lineNumber);
+			//Searches stack to see the index of variable
 			r.searchDeclaration(holder->child1->value_1);
+
 			//std::cout << "PUSH" << std::endl;
 			//std::cout << "LOAD " << holder->child1->value_3 << std::endl;
 			//std::cout << "STACKW " << 0 << std::endl;
 			outFile << "PUSH\n";
 			outFile << "LOAD " << holder->child1->value_1 << "\n";
 			outFile << "STACKW 0\n";  
+			
+			//recursive call passing child 2.
 			recGen(holder->child2, outFile);
 		}
 	}
 	else if(holder->label.compare("<expr>") == 0)
 	{
+		//If else determining if negative operator was used other wise
+		//recursively call passing child1.
 		if(holder->child2 != NULL)
 		{
 			std::string varHolder = "";
@@ -128,6 +158,7 @@ void recGen(node *holder, std::ofstream &outFile)
 			//expr();
 			recGen(holder->child3, outFile);
 			
+			//Creates new temp variable.
 			varHolder += newName(VAR);
 			//std::cout << "STORE " << varHolder << std::endl;
 			outFile << "STORE " << varHolder << "\n";
@@ -148,8 +179,11 @@ void recGen(node *holder, std::ofstream &outFile)
 	}
 	else if(holder->label.compare("<N>") == 0)
 	{
+		//If statement that checks if child2 points to null or not. If Null
+		//recursive call passing child1.
 		if(holder->child2 != NULL)
 		{
+			//Checks to see if division or multiplication operator.
 			if(holder->child2->id_1 == 12 && holder->child2 != NULL)
 			{
 				std::string varHolder = "";
@@ -157,6 +191,7 @@ void recGen(node *holder, std::ofstream &outFile)
 				//N();
 				recGen(holder->child3, outFile);
 
+				//Creates new variable.
 				varHolder += newName(VAR);
 				//std::cout << "STORE " << varHolder << std::endl;
 				outFile << "STORE " << varHolder << "\n";
@@ -196,6 +231,8 @@ void recGen(node *holder, std::ofstream &outFile)
 	}
 	else if(holder->label.compare("<A>") == 0)
 	{
+		//Checks to see if child2 is Null or has children. If null
+		//recursively call passing child1.
 		if(holder->child2 != NULL)
 		{
 			std::string varHolder = "";
@@ -203,6 +240,7 @@ void recGen(node *holder, std::ofstream &outFile)
 			//A();
 			recGen(holder->child3, outFile);
 			
+			//Creates new temp variable.
 			varHolder += newName(VAR);
 			//std::cout << "STORE " << varHolder << std::endl;
 			outFile << "STORE " << varHolder << "\n";
@@ -222,6 +260,8 @@ void recGen(node *holder, std::ofstream &outFile)
 	}
 	else if(holder->label.compare("<M>") == 0)
 	{
+		//Checks to see if child2 points to Null. If Null
+		//recursive call passing child1.
 		if(holder->child2 != NULL)
 		{
 			//M();
@@ -239,9 +279,11 @@ void recGen(node *holder, std::ofstream &outFile)
 	}
 	else if(holder->label.compare("<R>") == 0)
 	{
+		//Checks to see if identifier, integer, or parentheses. If parentheses the
+		//recursive call passing child1.
 		if(holder->child1->id_1 == 23)
 		{
-			//std::cout << holder->child1->value_1 << std::endl;
+			//Finds index if declared.
 			r.searchDeclaration(holder->child1->value_1);
 
 			//Stack output
@@ -263,6 +305,7 @@ void recGen(node *holder, std::ofstream &outFile)
 	{
 		if(holder->child1->id_1 == 23)
 		{
+			//Creates new temp variable.
 			std::string varHolder = "";
 			varHolder += newName(VAR);
 
@@ -283,6 +326,7 @@ void recGen(node *holder, std::ofstream &outFile)
 		//expr();
 		recGen(holder->child1, outFile);
 		
+		//Creates new temp variable.
 		std::string varHolder = "";
 		varHolder += newName(VAR);
 
@@ -298,30 +342,43 @@ void recGen(node *holder, std::ofstream &outFile)
 		//expr();
 		recGen(holder->child3, outFile);
 
+		//Creates a new temp label.
 		std::string labHolder = newName(LABEL);
 
-		//RO operators
+		//RO operators. If =>, =<, ==, or [==]. Subtracts second variable
+		//from first and determines what branch is necessary. For % checks
+		//to see if signs of int are opposite. 
 		if(holder->child2->child1->id_1 == 4)
 		{
+			//Creates new temp var.
 			std::string varHolder = newName(VAR);
+			//Creates new temp label.
 			std::string labHolder = newName(LABEL);
+
 			//std::cout << "STORE " << varHolder << std::endl;
 			outFile << "STORE " << varHolder << "\n";
+
 			//expr();
 			recGen(holder->child1, outFile);
+
 			//std::cout << "SUB " << varHolder << std::endl;
 			//std::cout << "BRZPOS " << labHolder << std::endl;
 			outFile << "SUB " << varHolder << "\n";
 			outFile << "BRZPOS " << labHolder << "\n";
 		}
 		else if(holder->child2->child1->id_1 == 5)
-		{
+		{	
+			//Creates new temp var.
 			std::string varHolder = newName(VAR);
+			//Creates new temp label.
 			std::string labHolder = newName(LABEL);
+
 			//std::cout << "STORE " << varHolder << std::endl;
 			outFile << "STORE " << varHolder << "\n";
+
 			//expr();
 			recGen(holder->child1, outFile);
+
 			//std::cout << "SUB " << varHolder << std::endl;
 			//std::cout << "BRZNEG " << labHolder << std::endl;
 			outFile << "SUB " << varHolder << "\n";
@@ -329,12 +386,17 @@ void recGen(node *holder, std::ofstream &outFile)
 		}
 		else if(holder->child2->child1->id_1 == 3)
 		{
+			//Creates new temp var.
 			std::string varHolder = newName(VAR);
+			//Creates new temp label.
 			std::string labHolder = newName(LABEL);
+
 			//std::cout << "STORE " << varHolder << std::endl;
 			outFile << "STORE " << varHolder << "\n";
+
 			//expr();
 			recGen(holder->child1, outFile);
+
 			//std::cout << "SUB " << varHolder << std::endl;
 			//std::cout << "BRNEG " << labHolder << std::endl; 
 			//std::cout << "BRPOS " << labHolder << std::endl; 
@@ -344,12 +406,17 @@ void recGen(node *holder, std::ofstream &outFile)
 		}
 		else if(holder->child2->child1->id_1 == 27)
 		{
+			//Creates new temp var.
 			std::string varHolder = newName(VAR);
+			//Creates new temp label.
 			std::string labHolder = newName(LABEL);
+
 			//std::cout << "STORE " << varHolder << std::endl;
 			outFile << "STORE " << varHolder << "\n";
+
 			//expr();
 			recGen(holder->child1, outFile);
+
 			//std::cout << "SUB " << varHolder << std::endl;
 			//std::cout << "BRZERO " << labHolder << std::endl;
 			outFile << "SUB " << varHolder << "\n";
@@ -357,15 +424,23 @@ void recGen(node *holder, std::ofstream &outFile)
 		}
 		else if(holder->child2->child1->id_1 == 13)
 		{
+			//Creates new temp var.
 			std::string varHolder1 = newName(VAR);
+			//Creates new temp var.
 			std::string varHolder2 = newName(VAR);
+			//Creates new temp label.
 			std::string mod1 = newName(LABEL);
+			//Creates new temp label.
 			std::string mod2 = newName(LABEL);
+			//Creates new temp label.
 			std::string mod3 = newName(LABEL);
+
 			//std::cout << "STORE " << varHolder1 << std::endl;
 			outFile << "STORE " << varHolder1 << "\n";
+
 			//expr();
 			recGen(holder->child1, outFile);
+
 			//std::cout << "STORE " << varHolder2 << std::endl;
 			//std::cout << "LOAD " << varHolder1 << std::endl;
 			//std::cout << "BRNEG " << mod1 << std::endl;
@@ -401,10 +476,15 @@ void recGen(node *holder, std::ofstream &outFile)
 	}
 	else if(holder->label.compare("<loop>") == 0)
 	{
+		//Creates new temp label.
 		std::string beginLoop = newName(LABEL);
+		//Creates new temp label.
 		std::string endLoop = newName(LABEL);
+		//Creates new temp label.
 		std::string mod1 = newName(LABEL);
+		//Creates new temp label.
 		std::string mod2 = newName(LABEL);
+		//Creates new temp label.
 		std::string brOut = newName(LABEL);
 		//std::cout << beginLoop << ": ";
 		outFile << beginLoop << ": NOOP\n";
@@ -415,11 +495,15 @@ void recGen(node *holder, std::ofstream &outFile)
 		//RO operators
 		if(holder->child2->child1->id_1 == 4)
 		{
+			//Creates new temp var.
 			std::string varHolder = newName(VAR);
+
 			//std::cout << "STORE " << varHolder << std::endl;
 			outFile << "STORE " << varHolder << "\n";
+
 			//expr();
 			recGen(holder->child1, outFile);
+
 			//std::cout << "SUB " << varHolder << std::endl;
 			//std::cout << "BRZPOS " << endLoop << std::endl;
 			outFile << "SUB " << varHolder << "\n";
@@ -427,11 +511,15 @@ void recGen(node *holder, std::ofstream &outFile)
 		}
 		else if(holder->child2->child1->id_1 == 5)
 		{
+			//Creates new temp var.
 			std::string varHolder = newName(VAR);
+
 			//std::cout << "STORE " << varHolder << std::endl;
 			outFile << "STORE " << varHolder << "\n";
+
 			//expr();
 			recGen(holder->child1, outFile);
+
 			//std::cout << "SUB " << varHolder << std::endl;
 			//std::cout << "BRZNEG " << endLoop << std::endl;
 			outFile << "SUB " << varHolder << "\n";
@@ -439,11 +527,15 @@ void recGen(node *holder, std::ofstream &outFile)
 		}
 		else if(holder->child2->child1->id_1 == 3)
 		{
+			//Creates new temp var.
 			std::string varHolder = newName(VAR);
+
 			//std::cout << "STORE " << varHolder << std::endl;
 			outFile << "STORE " << varHolder << "\n";
+
 			//expr();
 			recGen(holder->child1, outFile);
+
 			//std::cout << "SUB " << varHolder << std::endl;
 			//std::cout << "BRNEG " << endLoop << std::endl;
 			//std::cout << "BRPOS " << endLoop << std::endl;
@@ -453,11 +545,15 @@ void recGen(node *holder, std::ofstream &outFile)
 		}
 		else if(holder->child2->child1->id_1 == 27)
 		{
+			//Creates new temp var.
 			std::string varHolder = newName(VAR);
+
 			//std::cout << "STORE " << varHolder << std::endl;
 			outFile << "STORE " << varHolder << "\n";
+
 			//expr();
 			recGen(holder->child1, outFile);
+
 			//std::cout << "SUB " << varHolder << std::endl;
 			//std::cout << "BRZERO " << endLoop << std::endl; 
 			outFile << "SUB " << varHolder << "\n";
@@ -465,12 +561,17 @@ void recGen(node *holder, std::ofstream &outFile)
 		}
 		else if(holder->child2->child1->id_1 == 13)
 		{
+			//Creates new temp var.
 			std::string varHolder1 = newName(VAR);
+			//Creates new temp var.
 			std::string varHolder2 = newName(VAR);
+
 			//std::cout << "STORE " << varHolder1 << std::endl;
 			outFile << "STORE " << varHolder1 << "\n";
+
 			//expr();
 			recGen(holder->child1, outFile);
+
 			//std::cout << "STORE " << varHolder2 << std::endl;
 			//std::cout << "LOAD " << varHolder1 << std::endl;
 			//std::cout << "BRNEG " << mod1 << std::endl;
@@ -516,7 +617,6 @@ void recGen(node *holder, std::ofstream &outFile)
 			//Check to see if declared
 			r.searchDeclaration(holder->child1->value_1);
 
-			//Stack print
 			//<< "STACKW " << stackIndex << std::endl;
 			outFile << "STACKW " << stackIndex << "\n";
 		}
@@ -526,13 +626,22 @@ void recGen(node *holder, std::ofstream &outFile)
 	{
 		if(holder->child1->id_1 == 23)
 		{
-			std::ostringstream ex;
-
+			//Creates a temp label based on identifer.
 			std::string labelName = "";
 			labelName += holder->child1->value_1;
-			ex << labelIndex;
-			labelName += ex.str();
-			labelIndex++;			
+			
+			//Makes sure label has not already been used (Identifier);
+			if(r.vectorIndex(labelName) == -1)
+			{			
+				initLabels.push_back(labelName);
+			}
+			else
+			{
+				std::cout << "Error label already created." << std::endl;
+				std::cout << "Deleting file " << fileDelete << "." << std::endl;	
+				remove(fileDelete.c_str());
+				exit(1);
+			}
 
 			//std::cout << labelName << ": NOOP" << std::endl;
 			outFile << labelName << ": NOOP\n";
@@ -543,12 +652,15 @@ void recGen(node *holder, std::ofstream &outFile)
 	{
 		if(holder->child1->id_1 == 23)
 		{
-			std::ostringstream ex;
-
+			//Creates a temp label based on identifer.
 			std::string labelName = "";
 			labelName += holder->child1->value_1;
-			
-			if(labelIndex - 1 < 0)
+	
+			//Finds Index of label.
+			int vecIndex = r.vectorIndex(labelName); 
+	
+			//If true an error has occured since a label has not been created.	
+			if(vecIndex == -1)
 			{
 				std::cout << "Error Void Identifier was not found to create label to branch to." << std::endl;
 				std::cout << "Deleting file " << fileDelete << "." << std::endl;	
@@ -556,8 +668,6 @@ void recGen(node *holder, std::ofstream &outFile)
 				exit(1);
 			}
 
-			ex << labelIndex - 1;
-			labelName += ex.str();
 
 			//std::cout << "BR " << labelName << std::endl;			
 			outFile << "BR " << labelName << "\n";			
@@ -593,13 +703,6 @@ DynamicStack::~DynamicStack()
 	//Remove nodes from stack
 	while(currentPtr != NULL)
 	{
-		/*
-		if(failFlag == 0)
-		{
-			std::cout << "Popping off stack: " << currentPtr->label << std::endl;
-		}
-		*/		
-
 		nextNode = currentPtr->next;
 		delete currentPtr;
 		currentPtr = nextNode;
@@ -800,6 +903,24 @@ bool DynamicStack::vectorDeclaration(std::string symbol)
 }
 
 //**************************************************************************************
+
+int DynamicStack::vectorIndex(std::string sentence)
+{
+	for(int x = 0; x < initLabels.size(); x++)
+	{
+		if(sentence.compare(initLabels.at(x)) == 0)
+		{
+			return x;
+		}
+
+	}
+
+	return -1;
+}
+
+
+//**************************************************************************************
+
 //topStack: Returns what is on top of the stack.
 std::string DynamicStack::topStack()
 {
@@ -815,18 +936,15 @@ void DynamicStack::errorStack(StackNode *holder, StackNode *n, std::string symbo
 	{
 		std::cout << "Identifier error found on line: " << n->lineNumber << "." << std::endl;
 		std::cout << "Identifier " << holder->symbol << " was declared on line: " << holder->lineNumber << "." << std::endl;
-		failFlag = 1;
 		exit(1);
 	}	
 	else if(flag == 2)
 	{
 		std::cout << "Identifier " << symbol << " was not declared." << std::endl;
-		failFlag = 1;
 		exit(1);
 	}
 	else
 	{
-		failFlag = 1;
 		exit(1);
 	}
 }

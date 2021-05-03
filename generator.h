@@ -6,6 +6,7 @@
 #define GENERATOR_H
 
 #include <string>
+#include <vector>
 #include "node.h"
 
 //enum types
@@ -53,6 +54,7 @@ class DynamicStack
 	bool search(StackNode *);
 	bool searchDeclaration(std::string);
 	bool vectorDeclaration(std::string);
+	int vectorIndex(std::string);
 	std::string topStack();
 	void errorStack(StackNode *, StackNode *, std::string, int, int);
 };
