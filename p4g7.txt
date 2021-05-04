@@ -1,0 +1,7 @@
+$$ p4g7 $$
+
+main
+
+begin
+    getter x ;
+end

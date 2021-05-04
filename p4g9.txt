@@ -1,0 +1,14 @@
+$$ p4g9 $$
+
+data y := 7 ;
+data x := 9 ;
+
+main 
+begin
+
+void y;
+void y;
+
+proc y;
+
+end

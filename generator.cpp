@@ -359,26 +359,6 @@ void recGen(node *holder, std::ofstream &outFile)
 		{
 			//Creates new temp var.
 			std::string varHolder = newName(VAR);
-			//Creates new temp label.
-			std::string labHolder = newName(LABEL);
-
-			//std::cout << "STORE " << varHolder << std::endl;
-			outFile << "STORE " << varHolder << "\n";
-
-			//expr();
-			recGen(holder->child1, outFile);
-
-			//std::cout << "SUB " << varHolder << std::endl;
-			//std::cout << "BRZPOS " << labHolder << std::endl;
-			outFile << "SUB " << varHolder << "\n";
-			outFile << "BRZPOS " << labHolder << "\n";
-		}
-		else if(holder->child2->child1->id_1 == 5)
-		{	
-			//Creates new temp var.
-			std::string varHolder = newName(VAR);
-			//Creates new temp label.
-			std::string labHolder = newName(LABEL);
 
 			//std::cout << "STORE " << varHolder << std::endl;
 			outFile << "STORE " << varHolder << "\n";
@@ -391,12 +371,26 @@ void recGen(node *holder, std::ofstream &outFile)
 			outFile << "SUB " << varHolder << "\n";
 			outFile << "BRZNEG " << labHolder << "\n";
 		}
+		else if(holder->child2->child1->id_1 == 5)
+		{	
+			//Creates new temp var.
+			std::string varHolder = newName(VAR);
+
+			//std::cout << "STORE " << varHolder << std::endl;
+			outFile << "STORE " << varHolder << "\n";
+
+			//expr();
+			recGen(holder->child1, outFile);
+
+			//std::cout << "SUB " << varHolder << std::endl;
+			//std::cout << "BRZPOS " << labHolder << std::endl;
+			outFile << "SUB " << varHolder << "\n";
+			outFile << "BRZPOS " << labHolder << "\n";
+		}
 		else if(holder->child2->child1->id_1 == 3)
 		{
 			//Creates new temp var.
 			std::string varHolder = newName(VAR);
-			//Creates new temp label.
-			std::string labHolder = newName(LABEL);
 
 			//std::cout << "STORE " << varHolder << std::endl;
 			outFile << "STORE " << varHolder << "\n";
@@ -415,8 +409,6 @@ void recGen(node *holder, std::ofstream &outFile)
 		{
 			//Creates new temp var.
 			std::string varHolder = newName(VAR);
-			//Creates new temp label.
-			std::string labHolder = newName(LABEL);
 
 			//std::cout << "STORE " << varHolder << std::endl;
 			outFile << "STORE " << varHolder << "\n";
@@ -512,7 +504,7 @@ void recGen(node *holder, std::ofstream &outFile)
 			recGen(holder->child1, outFile);
 
 			//std::cout << "SUB " << varHolder << std::endl;
-			//std::cout << "BRZPOS " << endLoop << std::endl;
+			//std::cout << "BRZNEG " << endLoop << std::endl;
 			outFile << "SUB " << varHolder << "\n";
 			outFile << "BRZNEG " << endLoop << "\n";
 		}
@@ -528,7 +520,7 @@ void recGen(node *holder, std::ofstream &outFile)
 			recGen(holder->child1, outFile);
 
 			//std::cout << "SUB " << varHolder << std::endl;
-			//std::cout << "BRZNEG " << endLoop << std::endl;
+			//std::cout << "BRZPOS " << endLoop << std::endl;
 			outFile << "SUB " << varHolder << "\n";
 			outFile << "BRZPOS " << endLoop << "\n";
 		}

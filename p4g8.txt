@@ -1,0 +1,9 @@
+$$ p4g8 $$
+
+data x := 9 ;
+data w := 0 ;
+
+main
+begin
+proc w;
+end

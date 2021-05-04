@@ -4,7 +4,7 @@ data y := 567 ;
 main
 begin
 data x := 5 ;
-loop [ y => z ]
+loop [ y % *z ]
    begin
    outter z;
         begin
