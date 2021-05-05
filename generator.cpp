@@ -88,7 +88,7 @@ void recGen(node *holder, std::ofstream &outFile)
 		recGen(holder->child2, outFile);
 		recGen(holder->child3, outFile);
 
-		for(int x = 0; x < totalVar; x++)
+		for(int x = 0; x < globalVar; x++)
 		{
 			r.pop();
 			outFile << "POP\n";	
@@ -116,8 +116,33 @@ void recGen(node *holder, std::ofstream &outFile)
 	{
 		//Flips to allow local variable count to start
 		globalFlag = 1;
-
+		
 		//The node "main" does note contain any children.
+	}
+	else if(holder->label.compare("begin") == 0)
+	{
+		r.push("begin", "begin", -1, -1);
+		outFile << "PUSH\n";
+		//outFile << "LOAD" << -1 << "\n";
+		//outFile << "STACKW " << stackIndex << "\n";  
+	
+	}
+	else if(holder->label.compare("end") == 0)
+	{
+		while(1)
+		{
+			std::string symHolder = r.topStack();			
+
+			if(symHolder.compare("begin") == 0)
+			{
+				r.pop();
+				outFile << "POP\n";	
+				break;
+			}
+
+			r.pop();
+			outFile << "POP\n";	
+		}
 	}
 	else if(holder->label.compare("<vars>") == 0)
 	{	
@@ -369,7 +394,7 @@ void recGen(node *holder, std::ofstream &outFile)
 			//std::cout << "SUB " << varHolder << std::endl;
 			//std::cout << "BRZNEG " << labHolder << std::endl;
 			outFile << "SUB " << varHolder << "\n";
-			outFile << "BRZNEG " << labHolder << "\n";
+			outFile << "BRNEG " << labHolder << "\n";
 		}
 		else if(holder->child2->child1->id_1 == 5)
 		{	
@@ -385,7 +410,7 @@ void recGen(node *holder, std::ofstream &outFile)
 			//std::cout << "SUB " << varHolder << std::endl;
 			//std::cout << "BRZPOS " << labHolder << std::endl;
 			outFile << "SUB " << varHolder << "\n";
-			outFile << "BRZPOS " << labHolder << "\n";
+			outFile << "BRPOS " << labHolder << "\n";
 		}
 		else if(holder->child2->child1->id_1 == 3)
 		{
@@ -506,7 +531,7 @@ void recGen(node *holder, std::ofstream &outFile)
 			//std::cout << "SUB " << varHolder << std::endl;
 			//std::cout << "BRZNEG " << endLoop << std::endl;
 			outFile << "SUB " << varHolder << "\n";
-			outFile << "BRZNEG " << endLoop << "\n";
+			outFile << "BRNEG " << endLoop << "\n";
 		}
 		else if(holder->child2->child1->id_1 == 5)
 		{
@@ -522,7 +547,7 @@ void recGen(node *holder, std::ofstream &outFile)
 			//std::cout << "SUB " << varHolder << std::endl;
 			//std::cout << "BRZPOS " << endLoop << std::endl;
 			outFile << "SUB " << varHolder << "\n";
-			outFile << "BRZPOS " << endLoop << "\n";
+			outFile << "BRPOS " << endLoop << "\n";
 		}
 		else if(holder->child2->child1->id_1 == 3)
 		{
