@@ -32,8 +32,6 @@ static int LabelCntr = 0;
 static int VarCntr = 0;
 //Keeps track of the index of the stack.
 static int stackIndex;
-//Keeps track of label index for label function.
-static int labelIndex = 0;
 //Keeps track of the temp variables used to set to zero
 //at the end of program.
 static std::vector<std::string> initVars;
@@ -906,7 +904,6 @@ bool DynamicStack::vectorDeclaration(std::string symbol)
 {
 	StackNode *holder;
 	holder = top;
-	int lineNum = 0;
 
 	if(holder == NULL)
 	{
@@ -930,7 +927,7 @@ bool DynamicStack::vectorDeclaration(std::string symbol)
 
 int DynamicStack::vectorIndex(std::string sentence)
 {
-	for(int x = 0; x < initLabels.size(); x++)
+	for(int x = 0; x < (int)initLabels.size(); x++)
 	{
 		if(sentence.compare(initLabels.at(x)) == 0)
 		{

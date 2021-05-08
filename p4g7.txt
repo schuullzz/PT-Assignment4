@@ -1,7 +1,8 @@
 $$ p4g7 $$
 
 main
-
 begin
+    data x := 0 ;
+    data x := 12 ;
     getter x ;
 end

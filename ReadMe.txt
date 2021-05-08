@@ -17,7 +17,8 @@ Error
 1. p4g6.txt
 (Identifier y was not declared.)
 2. p4g7.txt
-(Identifier x was not declared.)
+(Identifier error found on line: 5.)
+(Identifier x was declare on line: 4.)
 3. p4g8.txt
 (Error Void Identifier was not found to create label to branch to.)
 (Deleting file p4g8.asm)

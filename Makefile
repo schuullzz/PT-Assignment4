@@ -13,7 +13,7 @@ all: $(TARGET)
 $(TARGET): $(OBJ)
 	$(CC) -o $(TARGET) $(OBJ)
 
-main.o: main.cpp scanner.h 
+main.o: main.cpp scanner.h parser.h generator.h node.h 
 	$(CC) $(CFLAGS) -c main.cpp
 
 scanner.o: scanner.cpp scanner.h token.h parser.h
@@ -22,7 +22,7 @@ scanner.o: scanner.cpp scanner.h token.h parser.h
 parser.o: parser.cpp scanner.h parser.h node.h
 	$(CC) $(CFLAGS) -c parser.cpp
 
-stack.o: generator.cpp stack.h
+generator.o: generator.cpp generator.h node.h 
 	$(CC) $(CFLAGS) -c generator.cpp
 
 .PHONY: clean
