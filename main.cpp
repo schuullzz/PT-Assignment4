@@ -202,6 +202,7 @@ static void readFile(std::string openFile)
 	}
 
 	recGen(tree, outFile);
+	std::cout << "File Created: " << fileBegin << std::endl;
 	
 	outFile.close();
 }
@@ -304,6 +305,7 @@ static void readInput()
 	}
 
 	recGen(tree, outFile);
+	std::cout << "File Created: " << keyboardFile << std::endl;
 	
 	outFile.close();
 }
