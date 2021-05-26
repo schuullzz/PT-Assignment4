@@ -1,0 +1,90 @@
+## Author: Timothy Schultz
+## Project 3: main.cpp scanner.cpp parser.cpp stack.cpp scanner.h token.h parser.h stack.h node.h
+
+Static Semantics Local Option:
+
+Static semantics that are processed for compiler are proper definition and use of variables. 
+
+* Variables
+
+Variable is defined before being used for the first time (data Identifier := Integer). 
+Indentifer showing up in any statement is the variable's use.
+
+* Local Option 
+
+Variables defined before the main keyword are considered in the global scope, those
+insided of any block are considered scoped in that block. The same scoping rules as in
+C are used. A variable is for use in a scope if it is defined in this scope, any of its
+enclosing scopes, or the global scope (static scoping rules).
+
+* Stack
+
+Contains driver for proper functions to be called to build and deconstruct stack.
+Node contains label, symbol, id, lineNumber, and *next. Stack is initiated to top
+of the stack via constructor. Destructor removes remaining nodes and cleans memory.
+
+Methods:
+
+* void push(std::string, std::string, int, int);
+* void pop();
+* bool isEmpty();
+* bool search(StackNode *);
+* bool searchDeclaration(std::string);
+* std::string topStack();
+* void errorStack(StackNode *, StackNode *, std::string, int);
+
+Driver: 
+
+Performs left to right traversal and performs different actions depending on subtree and 
+node visted. <Vars> before main are considered global variables. <block> vars are local 
+variables to that particular block.
+
+## Installation
+
+The main, scanner, parser, and stack has been tested on CentOS v7 with gcc v4.8.5.
+
+Using Makefile.
+
+```
+make
+```
+
+## Usage
+
+* statSem [-h]
+* statSem [file]
+* statSem < [file] 
+
+* -h		Displays usage message.
+* [file]		Any file containing strings.
+
+* < redirects file and reads strings as keyboard input.
+
+```
+./statSem [option var]
+```
+
+## Output
+
+* Terminal 
+
+Displays when nodes are pushed on the stack and when they are popped off. Will
+also indicated when destructor is called and the remaining nodes that are popped off. Which
+will be the global variables.
+
+Error Messages: 
+
+Error will display if identifier was already declared (shows which line declaration occured
+and what line the error occured). 
+
+Error will display if identifer was used before declaration.
+
+## Comments
+
+Stack was adapted to suit the needs of this project.
+
+## Reference
+
+Starting out with C++ From Control Structures through Objects.
+9th Edition.
+Tony Gaddis.

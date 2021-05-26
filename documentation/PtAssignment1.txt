@@ -1,0 +1,77 @@
+## Author: Timothy Schultz
+## Project 1: main.cpp scanner.cpp testscanner.cpp scanner.h testscanner.h token.h
+
+This project implements a scanner for defined lexical definitions. Reads the strings from 
+a file or a redirected file. Option 3.
+
+Lexical Definitions: 
+
+Identifiers
+* begin with a lower case letter or and underscore.
+* No other characters allowed and they should generate errors.
+
+Key Words
+{begin, end, loop, whole, void, exit, getter, outter, main, if, the, assign, data, proc}
+
+Operators
+{= , =>, =<. ==, :, :=, +, -, *, /, %, ., (, ), ,, {, }, ;, [, ]}
+
+Integers
+* Any sequence of decimal digits, no sign, no decimal point, up to 8 significant.
+
+Comments
+* Start with $$ and end with $$
+
+Option 3 (FSA Table + Driver):
+FSA Table is located token.h and has a comment section that illustrates it. The driver
+(void FADriver(std::string holder, int lineNumber)) is located in scanner.cpp/scanner.h. 
+The tokenis implemented as {token id, token symbol, token Instance, line number}. When 
+file ends EOFtk token is issued. 
+
+## Installation
+
+The main and tree script has been tested on CentOS v7 with gcc v4.8.5.
+
+Using Makefile.
+
+```
+make
+```
+
+## Usage
+
+* P1 [-h]
+* P1 [file]
+* P1 < [file] 
+
+* -h		Displays usage message.
+* [file]		Any file containing strings.
+
+* < redirects file and reads strings as keyboard input.
+
+```
+./P1 [option var]
+```
+
+## Output
+
+Terminal Display-
+
+Token Id: # (state of token)
+Token Symbol: Symbol that was recognized (=, <, etc.).
+Token Instance: _tk (IDENT_tk, EQUAL_tk, etc.). 
+Token Line Number: # (line number where token is)
+
+Error Message-
+
+* flag 1: Incorrect syntax for identifier.
+* flag 2: Incorrect character input.
+* flag 3: Incorrect number of digits allowed.
+
+## Comments
+
+* The driver used was adapted from the Power Point psuedocode.
+* Entire string is passed to driver without comments.
+* Was not sure if the entire program should terminate if error
+was found. It is currently constructed to continue even if error
+is found. It will display the error message along with line number.

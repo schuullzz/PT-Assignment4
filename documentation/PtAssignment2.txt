@@ -1,0 +1,85 @@
+#Author: Timothy Schultz
+#Project 2 main.cpp scanner.cpp parser.cpp scanner.h token.h parser.h node.h
+
+Parser and Tree Builder:
+
+Parser grammer is LL(1) and First Sets are computed. If token does not match the
+grammer an error is issued. When and error is encountered the program exits. 
+Empty productions are displayed to the screen. Preorder traversal was used to 
+print tree to screen.
+
+*Each node will print one line or empty.
+*Each new line will start with indentations of 2 spaces per level and display the
+node's label.
+*Continues over children left to right.
+*printing function was placed within parser.cpp.
+
+**
+I assumed that when <R0> is [==] (three tokens) it meant [, ==, ] were
+all individual tokens.
+**
+
+Grammer: 
+
+<program>  ->     <vars> main <block>
+<block>    ->     begin <vars> <stats> end
+<vars>     ->     empty | data Identifier :=  Integer  ;  <vars> 
+<expr>     ->     <N> - <expr>  | <N>
+<N>        ->     <A> / <N> | <A> * <N> | <A>
+<A>        ->     <M> + <A> | <M>
+<M>        ->     * <M> |  <R>
+<R>        ->     ( <expr> ) | Identifier | Integer
+<stats>    ->     <stat>  <mStat>
+<mStat>    ->     empty |  <stat>  <mStat>
+<stat>     ->     <in> ;  | <out> ;  | <block> | <if> ;  | <loop> ;  | <assign> ; | <goto> ; | <label> ;
+<in>       ->     getter  Identifier  
+<out>      ->     outter <expr>
+<if>       ->     if [ <expr> <RO> <expr> ] then <stat>
+<loop>     ->     loop  [ <expr> <RO> <expr> ]  <stat>
+<assign>   ->     assign Identifier  := <expr>  
+<RO>       ->     =>  | =< |  ==  |   [ == ]  (three tokens)  | %
+<label>    ->     void Identifier
+<goto>     ->     proc Identifier
+
+Tree:
+
+*Every node as label consistent with the name of the function creating it.
+*Every function creates one tree node.
+*My tree has 5 max children.
+*Each node contains a label, id_1, id_2, id_3, value_1, value_2, and value_3.
+
+P2 Testing - Good Programs:
+
+*found in directory: myTest.txt, testing1.txt, testing2.txt, testing3.txt, testing4.txt, 
+testing5.txt, and testing6.txt.
+
+## Installation
+
+The main, scanner, and parser has been tested on CentOS v7 with gcc v4.8.5.
+
+Using Makefile.
+
+```
+make
+```
+
+## Usage
+
+frontEnd [-h]
+frontEnd [file]
+frontEnd < [file] 
+
+-h		Displays usage message.
+[file]		Any file containing strings.
+
+* < redirects file and reads strings as keyboard input.
+
+```
+./frontEnd [option var]
+```
+
+## Output
+
+*An error if token is not recognized or if grammar is not followed.
+
+## Comments
