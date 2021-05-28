@@ -33,8 +33,7 @@ Program:
 ## Installation
 
 The main, scanner, parser, and generator has been tested on CentOS v7 with gcc v4.8.5 and ./VirtMach.
-
-This project will not compile on later versions of gcc.
+Virtual Machine Website: comp.umsl.edu/assembler/index
 
 Using Makefile.
 
